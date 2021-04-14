@@ -9,6 +9,11 @@ import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "CUSTOMER")
+@NamedQueries({
+        @NamedQuery(name = "customerByContactNum", query = "select c from CustomerEntity c where " +
+                "c.contactNumber = :contactNumber")
+
+})
 public class CustomerEntity {
 
     public CustomerEntity() {}
@@ -20,7 +25,7 @@ public class CustomerEntity {
 
     @Column(name = "uuid")
     @NotNull
-    @Size(max = 64)
+    @Size(max = 100)
     private String uuid;
 
     @Column(name = "firstname")
