@@ -85,4 +85,9 @@ public class CustomerBusinessService {
         }
         return null;
     }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void updateCustomerAuthEntity(CustomerAuthEntity customerAuthEntity) {
+        customerDao.updateCustomerAuthEntity(customerAuthEntity);
+    }
 }
