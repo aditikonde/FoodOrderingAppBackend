@@ -75,4 +75,14 @@ public class CustomerBusinessService {
         }
 
     }
+
+    public CustomerAuthEntity getCustomerByAuthToken(String access_token) {
+
+        CustomerAuthEntity customerAuthEntity = customerDao.getCustomerByAccessToken(access_token);
+
+        if(customerAuthEntity != null ) {
+            return customerAuthEntity;
+        }
+        return null;
+    }
 }
