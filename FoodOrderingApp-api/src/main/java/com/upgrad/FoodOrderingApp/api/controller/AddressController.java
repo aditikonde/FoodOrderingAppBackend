@@ -1,12 +1,15 @@
 package com.upgrad.FoodOrderingApp.api.controller;
 
+import com.upgrad.FoodOrderingApp.api.model.DeleteAddressResponse;
 import com.upgrad.FoodOrderingApp.api.model.SaveAddressRequest;
 import com.upgrad.FoodOrderingApp.api.model.SaveAddressResponse;
 import com.upgrad.FoodOrderingApp.service.businness.AddressBusinessService;
 import com.upgrad.FoodOrderingApp.service.businness.CustomerBusinessService;
 import com.upgrad.FoodOrderingApp.service.entity.AddressEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthEntity;
+import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
 import com.upgrad.FoodOrderingApp.service.entity.StateEntity;
+import com.upgrad.FoodOrderingApp.service.exception.AddressNotFoundException;
 import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
 import com.upgrad.FoodOrderingApp.service.exception.SaveAddressException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,5 +58,40 @@ public class AddressController {
             SaveAddressResponse addressResponse = new SaveAddressResponse().
                     id(UUID.fromString(newAddress.getUuid()).toString()).status("ADDRESS SUCCESSFULLY SAVED");
             return new ResponseEntity<SaveAddressResponse>(addressResponse, HttpStatus.CREATED);
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, path = "/address/{addressId}", produces =
+            MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity <DeleteAddressResponse> deleteAddress(@PathVariable("addressId")
+            final String addressId, @RequestHeader("authorization") final String authorization)
+            throws AuthorizationFailedException, AddressNotFoundException {
+        if (addressId == "" || addressId == null){
+            throw new AddressNotFoundException("ANF-005","Address id can not be empty");
+        }
+
+        CustomerAuthEntity customerAuthEntity =
+                customerBusinessService.getCustomerByAuthToken(authorization);
+
+//        if (customerAuthEntity == null) {
+//            throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
+//        }
+//        ZonedDateTime now = ZonedDateTime.now();
+//        if (customerAuthEntity.getLogout_at().isBefore(now)) {
+//            throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again " +
+//                    "to access this endpoint.");
+//        }
+//
+//        if (customerAuthEntity.getExpires_at().isBefore(now)) {
+//            throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again" +
+//                    " to access this endpoint.");
+//        }
+
+
+        final AddressEntity addressEntity = addressBusinessService.deleteAddress(addressId,
+                customerAuthEntity);
+        DeleteAddressResponse deleteAddressResponse =
+                new DeleteAddressResponse().id(UUID.fromString(addressId)).status("ADDRESS " +
+                        "DELETED SUCCESSFULLY");
+        return new ResponseEntity<DeleteAddressResponse>(deleteAddressResponse, HttpStatus.OK);
     }
 }

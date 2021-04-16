@@ -27,4 +27,20 @@ public class AddressDao {
             return null;
         }
     }
+
+    public AddressEntity getAddressByUuid(final String uuid) {
+        try {
+            return entityManager.createNamedQuery("getAddressByUuid", AddressEntity.class)
+                    .setParameter("uuid", uuid).getSingleResult();
+        } catch (NoResultException nre) {
+            System.out.println("Inside catch block");
+            return null;
+        }
+    }
+
+    public void deleteAddress(AddressEntity addressEntity, String addressId) {
+        entityManager.remove(addressEntity);
+        entityManager.createNamedQuery("deleteAddress").setParameter(
+                "uuid", addressId);
+    }
 }
