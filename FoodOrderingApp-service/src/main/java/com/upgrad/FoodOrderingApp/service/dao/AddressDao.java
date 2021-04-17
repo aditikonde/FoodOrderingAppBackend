@@ -49,4 +49,13 @@ public class AddressDao {
         entityManager.persist(customerAddressEntity);
         return customerAddressEntity;
     }
+
+    public AddressEntity getAddressById(Integer address_id) {
+        try {
+            return entityManager.createQuery("select u from AddressEntity u where u.id = " +
+                    ":address_id", AddressEntity.class).setParameter("address_id",address_id).getSingleResult();
+        } catch (NoResultException nre) {
+            return null;
+        }
+    }
 }
