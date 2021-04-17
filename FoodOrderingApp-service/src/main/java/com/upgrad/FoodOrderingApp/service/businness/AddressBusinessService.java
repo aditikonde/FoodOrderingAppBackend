@@ -47,4 +47,8 @@ public class AddressBusinessService {
     public CustomerAddressEntity createCustomerAddressEntity(CustomerAddressEntity customerAddressEntity) {
         return addressDao.createCustomerAddressEntity(customerAddressEntity);
     }
+
+    public AddressEntity getAddressById(Integer address_id) {
+        return addressDao.getAddressById(address_id);
+    }
 }

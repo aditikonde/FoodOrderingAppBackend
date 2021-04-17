@@ -63,10 +63,9 @@ public class CustomerBusinessService {
             customerAuthEntity.setAccess_token(jwtTokenProvider.generateToken(userEntity.getUuid(), now,
                     expiresAt));
             customerAuthEntity.setLogin_at(now);
-            customerAuthEntity.setExpires_at(expiresAt);
+            customerAuthEntity.setLogout_at(expiresAt);
             customerAuthEntity.setExpires_at(expiresAt);
             customerAuthEntity.setUuid(UUID.randomUUID().toString());
-
             CustomerAuthEntity createdCustomerAuthToken =
                     customerDao.createAuthToken(customerAuthEntity);
             customerDao.updateCustomer(userEntity);
