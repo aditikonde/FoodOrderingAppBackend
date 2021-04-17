@@ -56,7 +56,7 @@ public class CustomerEntity {
     @Size(max = 200)
     private String salt;
 
-    public long getId() {
+    public Integer getId() {
         return id;
     }
 
