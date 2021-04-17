@@ -6,9 +6,13 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "RESTAURANT")
+@NamedQueries({
+        @NamedQuery(name = "allRestaurants", query = "select c from RestaurantEntity c")
+})
 public class RestaurantEntity {
 
     public RestaurantEntity() {}
@@ -34,7 +38,7 @@ public class RestaurantEntity {
 
     @Column(name = "customer_rating")
     @NotNull
-    private Float customer_rating;
+    private BigDecimal customer_rating;
 
     @Column(name = "average_price_for_two")
     @NotNull
@@ -80,11 +84,11 @@ public class RestaurantEntity {
         this.photo_url = photo_url;
     }
 
-    public Float getCustomer_rating() {
+    public BigDecimal getCustomer_rating() {
         return customer_rating;
     }
 
-    public void setCustomer_rating(Float customer_rating) {
+    public void setCustomer_rating(BigDecimal customer_rating) {
         this.customer_rating = customer_rating;
     }
 

@@ -1,10 +1,13 @@
 package com.upgrad.FoodOrderingApp.service.businness;
 
 import com.upgrad.FoodOrderingApp.service.dao.CustomerDao;
+import com.upgrad.FoodOrderingApp.service.entity.CustomerAddressEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
 import com.upgrad.FoodOrderingApp.service.exception.AuthenticationFailedException;
+import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
 import com.upgrad.FoodOrderingApp.service.exception.SignUpRestrictedException;
+import com.upgrad.FoodOrderingApp.service.exception.UpdateCustomerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -60,10 +63,9 @@ public class CustomerBusinessService {
             customerAuthEntity.setAccess_token(jwtTokenProvider.generateToken(userEntity.getUuid(), now,
                     expiresAt));
             customerAuthEntity.setLogin_at(now);
-            customerAuthEntity.setExpires_at(expiresAt);
+            customerAuthEntity.setLogout_at(expiresAt);
             customerAuthEntity.setExpires_at(expiresAt);
             customerAuthEntity.setUuid(UUID.randomUUID().toString());
-
             CustomerAuthEntity createdCustomerAuthToken =
                     customerDao.createAuthToken(customerAuthEntity);
             customerDao.updateCustomer(userEntity);
@@ -90,4 +92,50 @@ public class CustomerBusinessService {
     public void updateCustomerAuthEntity(CustomerAuthEntity customerAuthEntity) {
         customerDao.updateCustomerAuthEntity(customerAuthEntity);
     }
+
+    /*
+        This service is used to update customer. Only the successful login  can update.
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
+    public CustomerEntity updateCustomer(final String authorizationToken, final CustomerEntity updateCustomer
+    ) throws AuthorizationFailedException, UpdateCustomerException {
+        CustomerAuthEntity customerAuthEntity = customerDao.getCustomerByAccessToken(authorizationToken);
+        if (customerAuthEntity == null) {
+            throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
+        }
+
+        CustomerEntity originalCustomer = customerAuthEntity.getCustomer();
+
+        if(originalCustomer.getFirstName()==null){
+            throw new UpdateCustomerException("UCR-002", "First name field should not be empty");
+        }
+
+        //uncomment when logout endpoint is done
+
+        final ZonedDateTime now = ZonedDateTime.now();
+        final ZonedDateTime loggedOutTime = customerAuthEntity.getLogout_at();
+        final long difference1 = now.compareTo(loggedOutTime);
+        if (difference1 > 0) {
+            throw new AuthorizationFailedException("ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
+        }
+
+        //final ZonedDateTime now = ZonedDateTime.now();
+        final ZonedDateTime expireTime = customerAuthEntity.getExpires_at();
+        final long difference2 = now.compareTo(expireTime);
+
+        if (difference2 > 0) {
+            throw new AuthorizationFailedException("ATHR-003", "Your session is expired. Log in again to access this endpoint.");
+        }
+
+        updateCustomer.setPassword(originalCustomer.getPassword());
+        updateCustomer.setEmail(originalCustomer.getEmail());
+        updateCustomer.setUuid(originalCustomer.getUuid());
+        updateCustomer.setSalt(originalCustomer.getSalt());
+        updateCustomer.setContactNumber(originalCustomer.getContactNumber());
+        updateCustomer.setId(originalCustomer.getId());
+
+
+        return customerDao.updateCustomer(updateCustomer);
+    }
+
 }

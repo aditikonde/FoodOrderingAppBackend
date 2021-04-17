@@ -5,10 +5,7 @@ import com.upgrad.FoodOrderingApp.api.model.SaveAddressRequest;
 import com.upgrad.FoodOrderingApp.api.model.SaveAddressResponse;
 import com.upgrad.FoodOrderingApp.service.businness.AddressBusinessService;
 import com.upgrad.FoodOrderingApp.service.businness.CustomerBusinessService;
-import com.upgrad.FoodOrderingApp.service.entity.AddressEntity;
-import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthEntity;
-import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
-import com.upgrad.FoodOrderingApp.service.entity.StateEntity;
+import com.upgrad.FoodOrderingApp.service.entity.*;
 import com.upgrad.FoodOrderingApp.service.exception.AddressNotFoundException;
 import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
 import com.upgrad.FoodOrderingApp.service.exception.SaveAddressException;
@@ -54,7 +51,11 @@ public class AddressController {
             newAddress.setPincode(saveAddressRequest.getPincode());
             newAddress.setState(stateEntity);
             newAddress.setUuid(UUID.randomUUID().toString());
-            addressBusinessService.saveAddress(newAddress);
+            AddressEntity savedNewAddress = addressBusinessService.saveAddress(newAddress);
+            CustomerAddressEntity customerAddressEntity = new CustomerAddressEntity();
+            customerAddressEntity.setAddress(savedNewAddress);
+            customerAddressEntity.setCustomer(customerAuthToken.getCustomer());
+            addressBusinessService.createCustomerAddressEntity(customerAddressEntity);
             SaveAddressResponse addressResponse = new SaveAddressResponse().
                     id(UUID.fromString(newAddress.getUuid()).toString()).status("ADDRESS SUCCESSFULLY SAVED");
             return new ResponseEntity<SaveAddressResponse>(addressResponse, HttpStatus.CREATED);
