@@ -1,6 +1,7 @@
 package com.upgrad.FoodOrderingApp.service.dao;
 
 import com.upgrad.FoodOrderingApp.service.entity.AddressEntity;
+import com.upgrad.FoodOrderingApp.service.entity.CustomerAddressEntity;
 import com.upgrad.FoodOrderingApp.service.entity.StateEntity;
 import org.springframework.stereotype.Repository;
 
@@ -42,5 +43,10 @@ public class AddressDao {
         entityManager.remove(addressEntity);
         entityManager.createNamedQuery("deleteAddress").setParameter(
                 "uuid", addressId);
+    }
+
+    public CustomerAddressEntity createCustomerAddressEntity(CustomerAddressEntity customerAddressEntity) {
+        entityManager.persist(customerAddressEntity);
+        return customerAddressEntity;
     }
 }
