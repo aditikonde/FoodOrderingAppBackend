@@ -69,13 +69,13 @@ public class CustomerController {
     @RequestMapping(method = RequestMethod.POST, path = "/customer/logout",produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<LogoutResponse> signout(@RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
         CustomerAuthEntity customerAuthEntity = customerBusinessService.getCustomerByAuthToken(authorization);
-        /*if(customerAuthEntity == null)
+        if(customerAuthEntity == null)
             throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
         if(customerAuthEntity != null && customerAuthEntity.getLogout_at() != null && customerAuthEntity.getLogout_at().isBefore(ZonedDateTime.now()))
             throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again to access this endpoint.");
         if(customerAuthEntity != null && customerAuthEntity.getExpires_at().isBefore(ZonedDateTime.now()))
             throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again to access this endpoint.");
-        */
+
         customerAuthEntity.setLogout_at(ZonedDateTime.now());
         CustomerEntity customer = customerAuthEntity.getCustomer();
         customerBusinessService.updateCustomerAuthEntity(customerAuthEntity);

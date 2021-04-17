@@ -2,6 +2,8 @@ package com.upgrad.FoodOrderingApp.service.entity;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -9,6 +11,12 @@ import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "CATEGORY")
+@NamedQueries({
+        @NamedQuery(name = "getAllCategories", query = "select c from CategoryEntity c"),
+        @NamedQuery(name = "getCategoryByUuid", query = "select q from CategoryEntity q where q" +
+                ".uuid = :uuid")
+
+})
 public class CategoryEntity {
 
     public CategoryEntity(){}
