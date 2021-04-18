@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class AddressBusinessService {
 
@@ -50,5 +52,10 @@ public class AddressBusinessService {
 
     public AddressEntity getAddressById(Integer address_id) {
         return addressDao.getAddressById(address_id);
+    }
+
+    @Transactional
+    public List<StateEntity> getAllStates() {
+        return addressDao.getAllStates();
     }
 }

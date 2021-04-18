@@ -1,8 +1,6 @@
 package com.upgrad.FoodOrderingApp.api.controller;
 
-import com.upgrad.FoodOrderingApp.api.model.DeleteAddressResponse;
-import com.upgrad.FoodOrderingApp.api.model.SaveAddressRequest;
-import com.upgrad.FoodOrderingApp.api.model.SaveAddressResponse;
+import com.upgrad.FoodOrderingApp.api.model.*;
 import com.upgrad.FoodOrderingApp.service.businness.AddressBusinessService;
 import com.upgrad.FoodOrderingApp.service.businness.CustomerBusinessService;
 import com.upgrad.FoodOrderingApp.service.entity.*;
@@ -16,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -61,6 +61,10 @@ public class AddressController {
             return new ResponseEntity<SaveAddressResponse>(addressResponse, HttpStatus.CREATED);
     }
 
+    /*
+        This endpoint is used to delete an address that has been saved by a customer. Only the owner
+        of the address can delete the address.
+    */
     @RequestMapping(method = RequestMethod.DELETE, path = "/address/{addressId}", produces =
             MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity <DeleteAddressResponse> deleteAddress(@PathVariable("addressId")
@@ -94,5 +98,29 @@ public class AddressController {
                 new DeleteAddressResponse().id(UUID.fromString(addressId)).status("ADDRESS " +
                         "DELETED SUCCESSFULLY");
         return new ResponseEntity<DeleteAddressResponse>(deleteAddressResponse, HttpStatus.OK);
+    }
+
+    /*
+        This endpoint is used to fetch all the states.
+        Any user can access this endpoint.
+     */
+    @RequestMapping(path = "/states", method = RequestMethod.GET, produces =
+            MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<StatesListResponse> getAllStates() {
+
+        List<StateEntity> listOfStates = addressBusinessService.getAllStates();
+
+        List<StatesList> list = new ArrayList<StatesList>();
+        for (int i = 0; i < listOfStates.size(); i++) {
+            StatesList state = new StatesList();
+            state.id(UUID.fromString(listOfStates.get(i).getUuid()))
+                    .stateName(listOfStates.get(i).getState_name());
+
+            list.add(state);
+        }
+        StatesListResponse statesListResponse = new StatesListResponse();
+        statesListResponse.states(list);
+
+        return new ResponseEntity<StatesListResponse>(statesListResponse, HttpStatus.OK);
     }
 }

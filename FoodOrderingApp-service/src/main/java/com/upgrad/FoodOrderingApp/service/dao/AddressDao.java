@@ -1,6 +1,7 @@
 package com.upgrad.FoodOrderingApp.service.dao;
 
 import com.upgrad.FoodOrderingApp.service.entity.AddressEntity;
+import com.upgrad.FoodOrderingApp.service.entity.CategoryEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerAddressEntity;
 import com.upgrad.FoodOrderingApp.service.entity.StateEntity;
 import org.springframework.stereotype.Repository;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import java.util.List;
 
 @Repository
 public class AddressDao {
@@ -24,6 +26,14 @@ public class AddressDao {
         try {
             return entityManager.createQuery("select u from StateEntity u where u.uuid = " +
                     ":state_uuid", StateEntity.class).setParameter("state_uuid",state_uuid).getSingleResult();
+        } catch (NoResultException nre) {
+            return null;
+        }
+    }
+
+    public List<StateEntity> getAllStates() {
+        try {
+            return entityManager.createNamedQuery("getAllStates", StateEntity.class).getResultList();
         } catch (NoResultException nre) {
             return null;
         }

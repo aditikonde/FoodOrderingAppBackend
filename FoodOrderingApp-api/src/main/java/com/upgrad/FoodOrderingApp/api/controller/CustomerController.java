@@ -26,6 +26,12 @@ public class CustomerController {
     @Autowired
     private CustomerBusinessService customerBusinessService;
 
+    /*
+        This endpoint is used to register a new customer in the FoodOrdering Application.
+        On successful registration, the information is stored in the database and JSON response
+        is created with appropriate message and HTTP status.
+     */
+
     @RequestMapping(method = RequestMethod.POST, path = "/customer/signup", consumes =
             MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<SignupCustomerResponse> signup(@RequestBody(required = false) final SignupCustomerRequest signupUserRequest) throws SignUpRestrictedException {
@@ -47,6 +53,11 @@ public class CustomerController {
         return new ResponseEntity<SignupCustomerResponse>(userResponse, HttpStatus.CREATED);
     }
 
+
+    /*
+       This endpoint is used for customer authentication. The customer logins in the application
+       and after successful authentication, access token is given to a customer.
+    */
     @RequestMapping(method = RequestMethod.POST, path = "/customer/login",consumes =
             MediaType.APPLICATION_JSON_UTF8_VALUE,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<LoginResponse> login(@RequestHeader("authorization") final String authorization) throws AuthenticationFailedException {
