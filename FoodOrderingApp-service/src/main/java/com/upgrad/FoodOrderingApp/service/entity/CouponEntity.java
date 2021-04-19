@@ -9,6 +9,10 @@ import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "COUPON")
+@NamedQueries({
+        @NamedQuery(name = "getCouponByName", query = "select q from CouponEntity q where q" +
+                ".coupon_name = :coupon_name")
+})
 public class CouponEntity {
 
     @Id
