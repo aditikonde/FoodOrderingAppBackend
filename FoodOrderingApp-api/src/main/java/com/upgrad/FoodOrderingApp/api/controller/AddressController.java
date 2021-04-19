@@ -101,6 +101,41 @@ public class AddressController {
     }
 
     /*
+
+       This endpoint is used to fetch all the saved address for a customer.
+    */
+    @RequestMapping(method = RequestMethod.GET,path="/address/customer",produces =
+            MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<AddressListResponse> getAllSavedAddressForCustomer(
+            @RequestHeader("authorization") final String authorization)
+            throws AuthorizationFailedException {
+
+        List<AddressEntity> allSavedAddress = addressBusinessService.getAllSavedAddressByCustomer(authorization);
+
+        AddressListResponse allSavedAddressResponses = new AddressListResponse();
+
+        List<AddressList> addressList = new ArrayList<AddressList>();
+
+        for (int i = 0; i < allSavedAddress.size(); i++) {
+            AddressList addr = new AddressList();
+            AddressListState addressListState = new AddressListState();
+
+            addr.setId(UUID.fromString(allSavedAddress.get(i).getUuid()));
+            addr.setFlatBuildingName(allSavedAddress.get(i).getFlat_buil_number());
+            addr.setLocality(allSavedAddress.get(i).getLocality());
+            addr.setCity(allSavedAddress.get(i).getCity());
+            addr.setPincode(allSavedAddress.get(i).getPincode());
+            addressListState.setId(UUID.fromString(allSavedAddress.get(i).getState().getUuid()));
+            addressListState.setStateName(allSavedAddress.get(i).getState().getState_name());
+
+            addressList.add(addr);
+            addr.setState(addressListState);
+
+        }
+        allSavedAddressResponses.setAddresses(addressList);
+
+        return new ResponseEntity<AddressListResponse>(allSavedAddressResponses,HttpStatus.OK);
+
         This endpoint is used to fetch all the states.
         Any user can access this endpoint.
      */
@@ -122,5 +157,6 @@ public class AddressController {
         statesListResponse.states(list);
 
         return new ResponseEntity<StatesListResponse>(statesListResponse, HttpStatus.OK);
+
     }
 }
