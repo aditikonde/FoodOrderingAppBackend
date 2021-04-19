@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import java.time.ZonedDateTime;
+
 import java.util.List;
 
 @Service
@@ -55,12 +57,11 @@ public class AddressBusinessService {
         return addressDao.createCustomerAddressEntity(customerAddressEntity);
     }
 
-//<<<<<<< HEAD
-//=======
+
     public AddressEntity getAddressById(Integer address_id) {
         return addressDao.getAddressById(address_id);
     }
-//>>>>>>> upstream/main
+
 
     /*
        This service is used to fetch all the questions posed by a specific user.
@@ -96,6 +97,12 @@ public class AddressBusinessService {
 
 
         return addressDao.getAllSavedAddressByCustomer(customerAuthEntity.getCustomer().getId());
+    }
+
+
+    @Transactional
+    public List<StateEntity> getAllStates() {
+        return addressDao.getAllStates();
     }
 
 }

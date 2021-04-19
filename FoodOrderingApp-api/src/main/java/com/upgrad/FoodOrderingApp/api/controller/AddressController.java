@@ -61,6 +61,10 @@ public class AddressController {
             return new ResponseEntity<SaveAddressResponse>(addressResponse, HttpStatus.CREATED);
     }
 
+    /*
+        This endpoint is used to delete an address that has been saved by a customer. Only the owner
+        of the address can delete the address.
+    */
     @RequestMapping(method = RequestMethod.DELETE, path = "/address/{addressId}", produces =
             MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity <DeleteAddressResponse> deleteAddress(@PathVariable("addressId")
@@ -97,6 +101,7 @@ public class AddressController {
     }
 
     /*
+
        This endpoint is used to fetch all the saved address for a customer.
     */
     @RequestMapping(method = RequestMethod.GET,path="/address/customer",produces =
@@ -130,5 +135,28 @@ public class AddressController {
         allSavedAddressResponses.setAddresses(addressList);
 
         return new ResponseEntity<AddressListResponse>(allSavedAddressResponses,HttpStatus.OK);
+
+        This endpoint is used to fetch all the states.
+        Any user can access this endpoint.
+     */
+    @RequestMapping(path = "/states", method = RequestMethod.GET, produces =
+            MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<StatesListResponse> getAllStates() {
+
+        List<StateEntity> listOfStates = addressBusinessService.getAllStates();
+
+        List<StatesList> list = new ArrayList<StatesList>();
+        for (int i = 0; i < listOfStates.size(); i++) {
+            StatesList state = new StatesList();
+            state.id(UUID.fromString(listOfStates.get(i).getUuid()))
+                    .stateName(listOfStates.get(i).getState_name());
+
+            list.add(state);
+        }
+        StatesListResponse statesListResponse = new StatesListResponse();
+        statesListResponse.states(list);
+
+        return new ResponseEntity<StatesListResponse>(statesListResponse, HttpStatus.OK);
+
     }
 }

@@ -8,11 +8,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Entity
-@Table(name = "STATE")
-@NamedQueries({
-        @NamedQuery(name = "getAllStates", query = "select s from StateEntity s")
-})
-public class StateEntity {
+@Table(name = "COUPON")
+public class CouponEntity {
 
     @Id
     @Column(name = "id")
@@ -21,12 +18,16 @@ public class StateEntity {
 
     @Column(name = "uuid")
     @NotNull
-    @Size(max = 100)
+    @Size(max = 64)
     private String uuid;
 
-    @Column(name = "state_name")
-    @Size(max = 65)
-    private String state_name;
+    @Column(name = "coupon_name")
+    @Size(max = 64)
+    private String coupon_name;
+
+    @Column(name = "percent")
+    @NotNull
+    private Integer percent;
 
     public Integer getId() {
         return id;
@@ -44,20 +45,29 @@ public class StateEntity {
         this.uuid = uuid;
     }
 
-    public String getState_name() {
-        return state_name;
+    public String getCoupon_name() {
+        return coupon_name;
     }
 
-    public void setState_name(String state_name) {
-        this.state_name = state_name;
+    public void setCoupon_name(String coupon_name) {
+        this.coupon_name = coupon_name;
+    }
+
+    public Integer getPercent() {
+        return percent;
+    }
+
+    public void setPercent(Integer percent) {
+        this.percent = percent;
     }
 
     @Override
     public String toString() {
-        return "StateEntity{" +
+        return "CouponEntity{" +
                 "id=" + id +
                 ", uuid='" + uuid + '\'' +
-                ", state_name='" + state_name + '\'' +
+                ", coupon_name='" + coupon_name + '\'' +
+                ", percent=" + percent +
                 '}';
     }
 

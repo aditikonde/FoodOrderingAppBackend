@@ -1,5 +1,6 @@
 package com.upgrad.FoodOrderingApp.service.entity;
 
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -8,11 +9,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Entity
-@Table(name = "STATE")
-@NamedQueries({
-        @NamedQuery(name = "getAllStates", query = "select s from StateEntity s")
-})
-public class StateEntity {
+@Table(name = "PAYMENT")
+public class PaymentEntity {
 
     @Id
     @Column(name = "id")
@@ -21,12 +19,12 @@ public class StateEntity {
 
     @Column(name = "uuid")
     @NotNull
-    @Size(max = 100)
+    @Size(max = 64)
     private String uuid;
 
-    @Column(name = "state_name")
-    @Size(max = 65)
-    private String state_name;
+    @Column(name = "payment_name")
+    @Size(max = 64)
+    private String payment_name;
 
     public Integer getId() {
         return id;
@@ -44,20 +42,20 @@ public class StateEntity {
         this.uuid = uuid;
     }
 
-    public String getState_name() {
-        return state_name;
+    public String getPayment_name() {
+        return payment_name;
     }
 
-    public void setState_name(String state_name) {
-        this.state_name = state_name;
+    public void setPayment_name(String payment_name) {
+        this.payment_name = payment_name;
     }
 
     @Override
     public String toString() {
-        return "StateEntity{" +
+        return "PaymentEntity{" +
                 "id=" + id +
                 ", uuid='" + uuid + '\'' +
-                ", state_name='" + state_name + '\'' +
+                ", payment_name='" + payment_name + '\'' +
                 '}';
     }
 

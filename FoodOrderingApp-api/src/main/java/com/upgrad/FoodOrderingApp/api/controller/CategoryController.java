@@ -1,9 +1,6 @@
 package com.upgrad.FoodOrderingApp.api.controller;
 
-import com.upgrad.FoodOrderingApp.api.model.CategoriesListResponse;
-import com.upgrad.FoodOrderingApp.api.model.CategoryDetailsResponse;
-import com.upgrad.FoodOrderingApp.api.model.ItemList;
-import com.upgrad.FoodOrderingApp.api.model.ItemListResponse;
+import com.upgrad.FoodOrderingApp.api.model.*;
 import com.upgrad.FoodOrderingApp.service.businness.CategoryBusinessService;
 import com.upgrad.FoodOrderingApp.service.entity.CategoryEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CategoryItemEntity;
@@ -33,28 +30,36 @@ public class CategoryController {
     @Autowired
     private CategoryBusinessService categoryBusinessService;
 
-
+    /*
+        This endpoint is used to fetch all the categories.
+        Any user can access this endpoint.
+     */
     @RequestMapping(path = "/category", method = RequestMethod.GET, produces =
             MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<CategoryDetailsResponse>> getAllCategories() {
+    public ResponseEntity<CategoriesListResponse> getAllCategories() {
 
         List<CategoryEntity> allCategories = categoryBusinessService.getAllCategories();
-        List<CategoryDetailsResponse> allCategoriesResoponse =
-                new ArrayList<CategoryDetailsResponse>();
+
+        List<CategoryListResponse> list = new ArrayList<CategoryListResponse>();
 
         for (int i = 0; i < allCategories.size(); i++) {
-            CategoryDetailsResponse category =
-                    new CategoryDetailsResponse().id(UUID.fromString(allCategories.get(i).getUuid()))
-                            .categoryName(allCategories.get(i).getCategory_name());
+            CategoryListResponse category = new CategoryListResponse();
+            category.id(UUID.fromString(allCategories.get(i).getUuid()))
+                    .categoryName(allCategories.get(i).getCategory_name());
 
-            allCategoriesResoponse.add(category);
-
+            list.add(category);
         }
 
-        return new ResponseEntity<List<CategoryDetailsResponse>>( allCategoriesResoponse,
+        CategoriesListResponse categoriesListResponse = new CategoriesListResponse();
+        categoriesListResponse.categories(list);
+        return new ResponseEntity<CategoriesListResponse>( categoriesListResponse,
                 HttpStatus.OK);
     }
 
+    /*
+        This endpoint is used to fetch a particular category.
+        Any user can access this endpoint.
+     */
     @RequestMapping(method = RequestMethod.GET, path = "/category/{category_id}", produces =
             MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<CategoryDetailsResponse>findCategoryById(@PathVariable("category_id")final String category_uuid) {
