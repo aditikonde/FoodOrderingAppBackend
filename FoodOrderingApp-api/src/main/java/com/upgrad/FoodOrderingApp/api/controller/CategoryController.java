@@ -42,19 +42,18 @@ public class CategoryController {
 
         List<CategoryListResponse> list = new ArrayList<CategoryListResponse>();
 
-        for (int i = 0; i < allCategories.size(); i++) {
+        for(int i = 0; i < allCategories.size(); i++) {
             CategoryListResponse category = new CategoryListResponse();
             category.id(UUID.fromString(allCategories.get(i).getUuid()))
                     .categoryName(allCategories.get(i).getCategory_name());
 
             list.add(category);
         }
-
         CategoriesListResponse categoriesListResponse = new CategoriesListResponse();
         categoriesListResponse.categories(list);
-        return new ResponseEntity<CategoriesListResponse>( categoriesListResponse,
-                HttpStatus.OK);
+        return new ResponseEntity<CategoriesListResponse>(categoriesListResponse, HttpStatus.OK);
     }
+
 
     /*
         This endpoint is used to fetch a particular category.

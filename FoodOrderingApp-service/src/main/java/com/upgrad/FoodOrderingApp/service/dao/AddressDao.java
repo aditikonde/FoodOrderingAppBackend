@@ -32,13 +32,6 @@ public class AddressDao {
         }
     }
 
-    public List<StateEntity> getAllStates() {
-        try {
-            return entityManager.createNamedQuery("getAllStates", StateEntity.class).getResultList();
-        } catch (NoResultException nre) {
-            return null;
-        }
-    }
 
     public AddressEntity getAddressByUuid(final String uuid) {
         try {
@@ -74,6 +67,14 @@ public class AddressDao {
         try {
             return entityManager.createNamedQuery("allSavedAddressByCustomerId", AddressEntity.class).setParameter("addid", id).getResultList();
         } catch (NoResultException nre) {
+            return null;
+        }
+    }
+
+    public List<StateEntity> getAllStates() {
+        try {
+            return entityManager.createNamedQuery("getAllStates",StateEntity.class).getResultList();
+        }catch (NoResultException nre) {
             return null;
         }
     }

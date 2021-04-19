@@ -134,8 +134,10 @@ public class AddressController {
         }
         allSavedAddressResponses.setAddresses(addressList);
 
-        return new ResponseEntity<AddressListResponse>(allSavedAddressResponses,HttpStatus.OK);
+        return new ResponseEntity<AddressListResponse>(allSavedAddressResponses, HttpStatus.OK);
+    }
 
+    /*
         This endpoint is used to fetch all the states.
         Any user can access this endpoint.
      */
@@ -146,6 +148,7 @@ public class AddressController {
         List<StateEntity> listOfStates = addressBusinessService.getAllStates();
 
         List<StatesList> list = new ArrayList<StatesList>();
+
         for (int i = 0; i < listOfStates.size(); i++) {
             StatesList state = new StatesList();
             state.id(UUID.fromString(listOfStates.get(i).getUuid()))
