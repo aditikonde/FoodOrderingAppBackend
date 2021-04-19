@@ -55,4 +55,47 @@ public class AddressBusinessService {
         return addressDao.createCustomerAddressEntity(customerAddressEntity);
     }
 
+//<<<<<<< HEAD
+//=======
+    public AddressEntity getAddressById(Integer address_id) {
+        return addressDao.getAddressById(address_id);
+    }
+//>>>>>>> upstream/main
+
+    /*
+       This service is used to fetch all the questions posed by a specific user.
+       Any user can access this endpoint.
+    */
+    @Transactional(propagation = Propagation.REQUIRED)
+    public List<AddressEntity> getAllSavedAddressByCustomer(final String authorizationToken) throws AuthorizationFailedException
+    {
+
+        CustomerAuthEntity customerAuthEntity = customerDao.getCustomerByAccessToken(authorizationToken);
+        if (customerAuthEntity == null) {
+            //throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
+        }
+
+        //uncomment when logout endpoint is done
+
+//        final ZonedDateTime now = ZonedDateTime.now();
+//        final ZonedDateTime loggedOutTime = customerAuthEntity.getLogoutAt();
+//        final long difference = now.compareTo(loggedOutTime);
+//        if (difference > 0) {
+//            throw new AuthorizationFailedException("ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
+//        }
+
+        final ZonedDateTime now = ZonedDateTime.now();
+        final ZonedDateTime expireTime = customerAuthEntity.getExpires_at();
+        final long difference = now.compareTo(expireTime);
+
+        if (difference > 0) {
+            //throw new AuthorizationFailedException("ATHR-003", "Your session is expired. Log in again to access this endpoint.");
+        }
+
+        //CustomerEntity customerEntity = customerDao.();
+
+
+        return addressDao.getAllSavedAddressByCustomer(customerAuthEntity.getCustomer().getId());
+    }
+
 }

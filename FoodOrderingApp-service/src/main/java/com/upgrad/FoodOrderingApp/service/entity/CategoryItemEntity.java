@@ -9,6 +9,10 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "CATEGORY_ITEM")
+@NamedQueries({
+        @NamedQuery(name = "getOneCategory", query = "select ci from CategoryItemEntity ci " +
+                "inner join ci.category cat where cat.id = :id")
+})
 public class CategoryItemEntity {
 
     public CategoryItemEntity() {}

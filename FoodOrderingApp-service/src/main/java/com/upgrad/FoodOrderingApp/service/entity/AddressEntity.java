@@ -13,7 +13,9 @@ import javax.validation.constraints.Size;
         @NamedQuery(name = "getAddressByUuid", query = "select a from AddressEntity a where a" +
                 ".uuid " + "= :uuid"),
         @NamedQuery(name = "deleteAddress", query = "delete from AddressEntity q where q.uuid = " +
-                ":uuid")
+                ":uuid"),
+        @NamedQuery(name = "allSavedAddressByCustomerId",query = "select a from AddressEntity a where a.id" +
+                " = :id")
 })
 public class AddressEntity {
     public AddressEntity() {}
