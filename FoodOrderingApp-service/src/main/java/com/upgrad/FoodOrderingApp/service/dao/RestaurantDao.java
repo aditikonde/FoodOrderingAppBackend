@@ -23,4 +23,16 @@ public class RestaurantDao {
             return null;
         }
     }
+
+    public RestaurantEntity getRestaurantByUUId(String restaurantUUID) {
+        try {
+            return entityManager.createNamedQuery("findRestaurantByUUId", RestaurantEntity.class).setParameter("restaurantUUID",restaurantUUID.toLowerCase()).getSingleResult();
+        } catch(NoResultException nre) {
+            return null;
+        }
+    }
+
+    public void updateRestaurant(final RestaurantEntity updatedRestaurantEntity) {
+        entityManager.merge(updatedRestaurantEntity);
+    }
 }

@@ -11,7 +11,8 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "RESTAURANT")
 @NamedQueries({
-        @NamedQuery(name = "allRestaurants", query = "select c from RestaurantEntity c")
+        @NamedQuery(name = "allRestaurants", query = "select c from RestaurantEntity c"),
+        @NamedQuery(name = "findRestaurantByUUId",query = "select r from RestaurantEntity r where lower(r.uuid) = :restaurantUUID")
 })
 public class RestaurantEntity {
 
