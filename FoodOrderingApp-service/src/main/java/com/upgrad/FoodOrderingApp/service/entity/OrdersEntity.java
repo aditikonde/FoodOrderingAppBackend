@@ -6,10 +6,18 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "ORDERS")
+
+@NamedQueries(
+        {
+                @NamedQuery(name = "ordersByCustomer", query = "select o from OrdersEntity o where o.customer=:customer order by o.date desc")
+        }
+)
+
 public class OrdersEntity {
 
     @Id
@@ -24,13 +32,17 @@ public class OrdersEntity {
 
     @Column(name = "bill")
     @NotNull
-    private Float bill;
+    private BigDecimal bill;
 
-    @Column(name = "coupon_id")
-    private Integer coupon_id;
+//    @Column(name = "coupon_id")
+//    private Integer coupon_id;
+
+    @ManyToOne
+    @JoinColumn(name = "coupon_id")
+    private CouponEntity coupon;
 
     @Column(name = "discount")
-    private Float discount;
+    private BigDecimal discount;
 
     @Column(name = "date")
     @NotNull
@@ -71,27 +83,35 @@ public class OrdersEntity {
         this.uuid = uuid;
     }
 
-    public Float getBill() {
+    public BigDecimal getBill() {
         return bill;
     }
 
-    public void setBill(Float bill) {
+    public void setBill(BigDecimal bill) {
         this.bill = bill;
     }
 
-    public Integer getCoupon_id() {
-        return coupon_id;
+//    public Integer getCoupon_id() {
+//        return coupon_id;
+//    }
+//
+//    public void setCoupon_id(Integer coupon_id) {
+//        this.coupon_id = coupon_id;
+//    }
+
+    public CouponEntity getCoupon() {
+        return coupon;
     }
 
-    public void setCoupon_id(Integer coupon_id) {
-        this.coupon_id = coupon_id;
+    public void setCoupon(CouponEntity coupon) {
+        this.coupon = coupon;
     }
 
-    public Float getDiscount() {
+    public BigDecimal getDiscount() {
         return discount;
     }
 
-    public void setDiscount(Float discount) {
+    public void setDiscount(BigDecimal discount) {
         this.discount = discount;
     }
 
@@ -141,7 +161,7 @@ public class OrdersEntity {
                 "id=" + id +
                 ", uuid='" + uuid + '\'' +
                 ", bill=" + bill +
-                ", coupon_id=" + coupon_id +
+                ", coupon=" + coupon +
                 ", discount=" + discount +
                 ", date=" + date +
                 ", payment=" + payment +

@@ -1,11 +1,10 @@
 package com.upgrad.FoodOrderingApp.api.controller;
 
-import com.upgrad.FoodOrderingApp.api.model.CategoryDetailsResponse;
-import com.upgrad.FoodOrderingApp.api.model.CouponDetailsResponse;
+import com.upgrad.FoodOrderingApp.api.model.*;
 import com.upgrad.FoodOrderingApp.service.businness.CustomerBusinessService;
+import com.upgrad.FoodOrderingApp.service.businness.ItemBusinessService;
 import com.upgrad.FoodOrderingApp.service.businness.OrderBusinessService;
-import com.upgrad.FoodOrderingApp.service.entity.CouponEntity;
-import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthEntity;
+import com.upgrad.FoodOrderingApp.service.entity.*;
 import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
 import com.upgrad.FoodOrderingApp.service.exception.CouponNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +26,9 @@ public class OrderController {
 
     @Autowired
     private CustomerBusinessService customerBusinessService;
+
+    @Autowired
+    private ItemBusinessService itemBusinessService;
 
 
     @RequestMapping(method = RequestMethod.GET, path = "/order/coupon/{coupon_name}", produces =
@@ -68,4 +70,84 @@ public class OrderController {
 
 
     }
+
+    @RequestMapping(method = RequestMethod.GET, path = "/order", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<CustomerOrderResponse> getPastOrdersOfUser(@RequestHeader("authorization") final String authorization)
+            throws AuthorizationFailedException {
+
+
+        CustomerAuthEntity customerAuthTokenEntity = customerBusinessService.getCustomerByAuthToken(authorization);
+
+        CustomerEntity customerEntity = customerAuthTokenEntity.getCustomer();
+
+        final List<OrdersEntity> ordersEntityList = orderBusinessService.getCustomerOrders(customerEntity, authorization);
+
+        CustomerOrderResponse customerOrderResponse = new CustomerOrderResponse();
+
+        List<OrderList> orderDetailsList = new ArrayList<OrderList>();
+
+        for (OrdersEntity ordersEntity: ordersEntityList) {
+
+            OrderListCustomer orderListCustomer = new OrderListCustomer();
+            orderListCustomer.setId(UUID.fromString(ordersEntity.getCustomer().getUuid()));
+            orderListCustomer.setFirstName(ordersEntity.getCustomer().getFirstName());
+            orderListCustomer.setLastName(ordersEntity.getCustomer().getLastName());
+            orderListCustomer.setContactNumber(ordersEntity.getCustomer().getContactNumber());
+            orderListCustomer.setEmailAddress(ordersEntity.getCustomer().getEmail());
+
+            OrderListAddressState orderListAddressState = new OrderListAddressState();
+            orderListAddressState.setId(UUID.fromString(ordersEntity.getAddress().getState().getUuid()));
+            orderListAddressState.setStateName(ordersEntity.getAddress().getState().getState_name());
+
+            OrderListAddress orderListAddress = new OrderListAddress();
+            orderListAddress.setId(UUID.fromString(ordersEntity.getAddress().getUuid()));
+            orderListAddress.setFlatBuildingName(ordersEntity.getAddress().getFlat_buil_number());
+            orderListAddress.setLocality(ordersEntity.getAddress().getLocality());
+            orderListAddress.setCity(ordersEntity.getAddress().getCity());
+            orderListAddress.setPincode(ordersEntity.getAddress().getPincode());
+            orderListAddress.setState(orderListAddressState);
+
+            OrderListCoupon orderListCoupon = new OrderListCoupon();
+            orderListCoupon.setId(UUID.fromString(ordersEntity.getCoupon().getUuid()));
+            orderListCoupon.setCouponName(ordersEntity.getCoupon().getCoupon_name());
+            orderListCoupon.setPercent(ordersEntity.getCoupon().getPercent());
+
+            OrderListPayment orderListPayment = new OrderListPayment();
+            orderListPayment.setId(UUID.fromString(ordersEntity.getUuid()));
+            orderListPayment.setPaymentName(ordersEntity.getPayment().getPayment_name());
+
+            OrderList orderList = new OrderList();
+            orderList.setId(UUID.fromString(ordersEntity.getUuid()));
+            orderList.setDate(ordersEntity.getDate().toString());
+            orderList.setAddress(orderListAddress);
+            orderList.setCustomer(orderListCustomer);
+            orderList.setPayment(orderListPayment);
+            orderList.setCoupon(orderListCoupon);
+            orderList.setBill(ordersEntity.getBill());
+            orderList.setDiscount(ordersEntity.getDiscount());
+
+            for (OrderItemEntity orderItemEntity : itemBusinessService.getItemsByOrder(ordersEntity)) {
+
+                ItemQuantityResponseItem itemQuantityResponseItem = new ItemQuantityResponseItem();
+                itemQuantityResponseItem.setId(UUID.fromString(orderItemEntity.getItem().getUuid()));
+                itemQuantityResponseItem.setItemName(orderItemEntity.getItem().getItem_name());
+                itemQuantityResponseItem.setItemPrice(orderItemEntity.getItem().getPrice());
+                itemQuantityResponseItem.setType(ItemQuantityResponseItem.TypeEnum.valueOf(orderItemEntity.getItem().getType().toString()));
+
+                ItemQuantityResponse itemQuantityResponse = new ItemQuantityResponse();
+                itemQuantityResponse.setItem(itemQuantityResponseItem);
+                itemQuantityResponse.setPrice(orderItemEntity.getPrice());
+                itemQuantityResponse.setQuantity(orderItemEntity.getQuantity());
+
+                orderList.addItemQuantitiesItem(itemQuantityResponse);
+            }
+
+            customerOrderResponse.addOrdersItem(orderList);
+
+        }
+
+        return new ResponseEntity<CustomerOrderResponse>(customerOrderResponse, HttpStatus.OK);
+
+    }
+
 }
