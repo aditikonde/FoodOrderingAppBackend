@@ -8,6 +8,13 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "ORDER_ITEM")
+
+@NamedQueries(
+        {
+                @NamedQuery(name = "orderItemById", query = "select o from OrderItemEntity o where o.id=:id"),
+                @NamedQuery(name = "itemsByOrder", query = "select o from OrderItemEntity o where o.order=:order"),
+        }
+)
 public class OrderItemEntity {
 
     @Id
