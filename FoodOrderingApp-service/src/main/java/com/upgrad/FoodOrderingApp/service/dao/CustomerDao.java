@@ -50,4 +50,13 @@ public class CustomerDao {
 
         return entityManager.merge(customer);
     }
+
+    public CustomerEntity getCustomerByUuid(final String uuid) {
+        try {
+            return entityManager.createNamedQuery("customerByUuid", CustomerEntity.class).setParameter("uuid", uuid)
+                    .getSingleResult();
+        } catch(NoResultException nre) {
+            return null;
+        }
+    }
 }
