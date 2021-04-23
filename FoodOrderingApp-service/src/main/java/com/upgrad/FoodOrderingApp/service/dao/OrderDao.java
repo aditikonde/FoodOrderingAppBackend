@@ -34,4 +34,18 @@ public class OrderDao {
             return null;
         }
     }
+
+    public CouponEntity getCouponByUUID(String couponId) {
+        try {
+            return entityManager.createNamedQuery("getCouponByUUID", CouponEntity.class).setParameter(
+                    "couponId", couponId).getSingleResult();
+        } catch (NoResultException nre) {
+            return null;
+        }
+    }
+
+    public OrdersEntity saveOrder(OrdersEntity order) {
+        entityManager.persist(order);
+        return order;
+    }
 }

@@ -11,6 +11,10 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "CUSTOMER_ADDRESS")
+@NamedQueries({
+        @NamedQuery(name = "custAddressByAddressId", query = "select q from CustomerAddressEntity q where q" +
+                " .id = :addressId")
+})
 public class CustomerAddressEntity implements Serializable {
 
     public CustomerAddressEntity() {}

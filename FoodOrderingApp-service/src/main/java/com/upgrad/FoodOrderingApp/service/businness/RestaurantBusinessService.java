@@ -87,4 +87,7 @@ public class RestaurantBusinessService {
         return restaurantEntity;
     }
 
+    public RestaurantEntity getRestaurantByUUID(String restaurantUUID) {
+        return restaurantDao.getRestaurantByUUId(restaurantUUID);
+    }
 }
