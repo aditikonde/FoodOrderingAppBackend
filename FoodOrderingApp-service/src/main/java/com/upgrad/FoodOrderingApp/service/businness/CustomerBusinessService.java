@@ -185,4 +185,8 @@ public class CustomerBusinessService {
         return customerEntity;
     }
 
+    public CustomerAddressEntity getCustAddressByAddressId(Integer addressId) {
+        return customerDao.getCustAddressByAddressId(addressId);
+    }
+
 }

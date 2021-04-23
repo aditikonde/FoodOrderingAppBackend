@@ -9,6 +9,10 @@ import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "ITEM")
+@NamedQueries({
+        @NamedQuery(name = "getItemByUUID", query = "select q from ItemEntity q where q" +
+                " .uuid = :itemID")
+})
 public class ItemEntity {
 
     @Id

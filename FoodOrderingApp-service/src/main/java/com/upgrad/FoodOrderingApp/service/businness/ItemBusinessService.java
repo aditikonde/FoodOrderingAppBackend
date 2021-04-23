@@ -1,7 +1,9 @@
 package com.upgrad.FoodOrderingApp.service.businness;
 
 
+import com.upgrad.FoodOrderingApp.service.dao.ItemDao;
 import com.upgrad.FoodOrderingApp.service.dao.OrderItemDao;
+import com.upgrad.FoodOrderingApp.service.entity.ItemEntity;
 import com.upgrad.FoodOrderingApp.service.entity.OrderItemEntity;
 import com.upgrad.FoodOrderingApp.service.entity.OrdersEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,9 @@ public class ItemBusinessService {
 
     @Autowired
     private OrderItemDao orderItemDao;
+
+    @Autowired
+    private ItemDao itemDao;
 
 //    @Transactional
 //    // A Method which takes the itemId as parameter for getItemEntityById
@@ -75,6 +80,9 @@ public class ItemBusinessService {
 
     public List<OrderItemEntity> getItemsByOrder(OrdersEntity orderEntity) {
         return orderItemDao.getItemsByOrder(orderEntity);
+    }
+    public ItemEntity getItemByUUID(String itemID) {
+        return itemDao.getItemByUUID(itemID);
     }
 }
 

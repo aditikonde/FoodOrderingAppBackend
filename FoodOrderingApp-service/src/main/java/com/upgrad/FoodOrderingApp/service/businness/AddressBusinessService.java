@@ -105,4 +105,8 @@ public class AddressBusinessService {
         return addressDao.getAllStates();
     }
 
+    public AddressEntity getAddressByUUID(String addressId) {
+        return addressDao.getAddressByUuid(addressId);
+    }
+
 }

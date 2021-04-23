@@ -21,4 +21,7 @@ public class PaymentBusinessService {
         return paymentDao.getPaymentMethods();
     }
 
+    public PaymentEntity getPaymentBYUUID(String paymentId) {
+        return paymentDao.getPaymentByUUID(paymentId);
+    }
 }

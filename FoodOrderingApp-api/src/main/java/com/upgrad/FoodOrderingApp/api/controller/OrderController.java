@@ -1,9 +1,7 @@
 package com.upgrad.FoodOrderingApp.api.controller;
 
 import com.upgrad.FoodOrderingApp.api.model.*;
-import com.upgrad.FoodOrderingApp.service.businness.CustomerBusinessService;
-import com.upgrad.FoodOrderingApp.service.businness.ItemBusinessService;
-import com.upgrad.FoodOrderingApp.service.businness.OrderBusinessService;
+import com.upgrad.FoodOrderingApp.service.businness.*;
 import com.upgrad.FoodOrderingApp.service.entity.*;
 import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
 import com.upgrad.FoodOrderingApp.service.exception.CouponNotFoundException;
@@ -13,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -30,6 +29,14 @@ public class OrderController {
     @Autowired
     private ItemBusinessService itemBusinessService;
 
+    @Autowired
+    private RestaurantBusinessService restaurantBusinessService;
+
+    @Autowired
+    private AddressBusinessService addressBusinessService;
+
+    @Autowired
+    private PaymentBusinessService paymentBusinessService;
 
     @RequestMapping(method = RequestMethod.GET, path = "/order/coupon/{coupon_name}", produces =
             MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -148,6 +155,44 @@ public class OrderController {
 
         return new ResponseEntity<CustomerOrderResponse>(customerOrderResponse, HttpStatus.OK);
 
+    }
+
+    @RequestMapping(method = RequestMethod.POST,path="/order",consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<SaveOrderResponse> saveOrder(@RequestHeader("authorization") final String authorization,@RequestBody(required = false) final SaveOrderRequest orderRequest)
+    {
+        CustomerAuthEntity customerAuthEntity =
+                customerBusinessService.getCustomerByAuthToken(authorization);
+        CustomerEntity customerEntity = customerAuthEntity.getCustomer();
+        OrdersEntity order = new OrdersEntity();
+        CouponEntity couponEntity = orderBusinessService.getCouponByCouponUUID(orderRequest.getCouponId().toString());
+        AddressEntity addressEntity = addressBusinessService.getAddressByUUID(orderRequest.getAddressId());
+        CustomerAddressEntity customerAddressEntity = customerBusinessService.getCustAddressByAddressId(addressEntity.getId());
+        PaymentEntity paymentEntity = paymentBusinessService.getPaymentBYUUID(orderRequest.getPaymentId().toString());
+        RestaurantEntity restaurantEntity = restaurantBusinessService.getRestaurantByUUID(orderRequest.getRestaurantId().toString());
+        order.setDate(ZonedDateTime.now());
+        order.setRestaurant(restaurantEntity);
+        order.setBill(orderRequest.getBill());
+        order.setDiscount(orderRequest.getDiscount());
+        order.setAddress(addressEntity);
+        order.setCoupon(couponEntity);
+        order.setPayment(paymentEntity);
+        order.setUuid(UUID.randomUUID().toString());
+        order.setCustomer(customerEntity);
+        OrdersEntity savedOrder = orderBusinessService.saveOrder(order);
+
+        for(ItemQuantity item : orderRequest.getItemQuantities())
+        {
+            ItemEntity itemEntity = itemBusinessService.getItemByUUID(item.getItemId().toString());
+            OrderItemEntity orderItemEntity = new OrderItemEntity();
+            orderItemEntity.setOrder(savedOrder);
+            orderItemEntity.setItem(itemEntity);
+            orderItemEntity.setPrice(item.getPrice());
+            orderItemEntity.setQuantity(item.getQuantity());
+            orderBusinessService.saveOrderItem(orderItemEntity);
+        }
+        SaveOrderResponse saveOrderResponse = new SaveOrderResponse().id(UUID.fromString(order.getUuid()).toString()).status("ORDER SUCCESSFULLY PLACED");
+        return new ResponseEntity<SaveOrderResponse>(saveOrderResponse,HttpStatus.CREATED);
     }
 
 }
