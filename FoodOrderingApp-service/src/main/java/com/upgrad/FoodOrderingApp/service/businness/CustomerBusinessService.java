@@ -157,7 +157,9 @@ public class CustomerBusinessService {
             //throw new AuthorizationFailedException("ATHR-003", "Your session is expired. Log in again to access this endpoint.");
         }
 
-        CustomerEntity customerEntity =  customerDao.getCustomerByUuid(customerAuthEntity.getUuid());
+       //CustomerEntity customerEntity =  customerDao.getCustomerByUuid(customerAuthEntity.getUuid());
+
+        CustomerEntity customerEntity = customerAuthEntity.getCustomer();
 
         if (oldPassword == null || newPassword ==  null) {
             //throw new UpdateCustomerException("UCR-003", "No field should be empty");
