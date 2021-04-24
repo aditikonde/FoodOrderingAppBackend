@@ -12,7 +12,10 @@ import java.math.BigDecimal;
 @Table(name = "RESTAURANT")
 @NamedQueries({
         @NamedQuery(name = "allRestaurants", query = "select c from RestaurantEntity c"),
-        @NamedQuery(name = "findRestaurantByUUId",query = "select r from RestaurantEntity r where lower(r.uuid) = :restaurantUUID")
+        @NamedQuery(name = "findRestaurantByUUId",query = "select r from RestaurantEntity r where" +
+                " lower(r.uuid) = :restaurantUUID"),
+        @NamedQuery(name = "getRestaurantAddress",query = "select r from RestaurantEntity r where lower(r.uuid) = :restaurantUUID")
+
 })
 public class RestaurantEntity {
 
@@ -51,7 +54,7 @@ public class RestaurantEntity {
 
     @Column(name = "address_id")
     @NotNull
-    private Integer address_id;
+    private AddressEntity address;
 
     public Integer getId() {
         return id;
@@ -109,12 +112,12 @@ public class RestaurantEntity {
         this.number_of_customers_rated = number_of_customers_rated;
     }
 
-    public Integer getAddress_id() {
-        return address_id;
+    public AddressEntity getAddress() {
+        return address;
     }
 
-    public void setAddress_id(Integer address_id) {
-        this.address_id = address_id;
+    public void setAddress(AddressEntity address) {
+        this.address = address;
     }
 
     @Override
@@ -127,7 +130,7 @@ public class RestaurantEntity {
                 ", customer_rating=" + customer_rating +
                 ", average_price_for_two=" + average_price_for_two +
                 ", number_of_customers_rated=" + number_of_customers_rated +
-                ", address_id=" + address_id +
+                ", address=" + address +
                 '}';
     }
 

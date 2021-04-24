@@ -58,7 +58,8 @@ public class RestaurantController {
 
     private RestaurantList getRestaurantDetails(List<RestaurantEntity> restaurantEntityList, int i)
     {
-        AddressEntity addressEntity = addressBusinessService.getAddressById(restaurantEntityList.get(i).getAddress_id());
+        AddressEntity addressEntity =
+                addressBusinessService.getAddressById(restaurantEntityList.get(i).getAddress().getId());
         StateEntity stateEntity = addressBusinessService.getStateByUuid(addressEntity.getState().getUuid());
         RestaurantDetailsResponseAddressState responseAddressState = new RestaurantDetailsResponseAddressState().stateName(stateEntity.getState_name())
                 .id(UUID.fromString(stateEntity.getUuid()));
@@ -95,20 +96,46 @@ public class RestaurantController {
         return new ResponseEntity<RestaurantListResponse>(response, HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "/api/restaurant/{restaurant_id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<RestaurantListResponse> getRestaurantsByRestaurantId(@PathVariable("restaurant_id") final String restaurant_id) {
-        List<RestaurantEntity> restaurantEntityList = restaurantBusinessService.getAllRestaurants();
-        List<RestaurantList> list = new ArrayList<>();
-        for (int i = 0; i < restaurantEntityList.size(); i++) {
-            if (restaurantEntityList.get(i).getUuid().contains(restaurant_id)) {
-                list.add(getRestaurantDetails(restaurantEntityList,i));
-            }
-        }
-        RestaurantListResponse response = new RestaurantListResponse().restaurants(list);
-        return new ResponseEntity<RestaurantListResponse>(response, HttpStatus.OK);
+    @RequestMapping(method = RequestMethod.GET, path = "/restaurant/{restaurant_id}", produces =
+            MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<RestaurantDetailsResponse> getRestaurantByRestaurantId(@PathVariable("restaurant_id") final String restaurant_id) {
+
+        RestaurantEntity restaurantEntity =
+                restaurantBusinessService.getRestaurantByUUID(restaurant_id);
+
+        RestaurantDetailsResponseAddress address = new RestaurantDetailsResponseAddress();
+        AddressEntity addressEntity  = restaurantEntity.getAddress();
+
+        RestaurantDetailsResponseAddressState state = new RestaurantDetailsResponseAddressState();
+        StateEntity stateEntity = addressBusinessService.getStateByUuid(addressEntity.getUuid());
+        state.id(UUID.fromString(stateEntity.getUuid()))
+                .stateName(stateEntity.getState_name());
+
+
+
+        address.id(UUID.fromString(addressEntity.getUuid()))
+                .flatBuildingName(addressEntity.getFlat_buil_number())
+                .locality(addressEntity.getLocality())
+                .city(addressEntity.getCity())
+                .pincode(addressEntity.getPincode())
+                .state(state);
+
+        RestaurantDetailsResponse restaurantDetailsResponse = new RestaurantDetailsResponse();
+        restaurantDetailsResponse.id(UUID.fromString(restaurantEntity.getUuid()))
+                                    .restaurantName(restaurantEntity.getRestaurant_name())
+                                    .photoURL(restaurantEntity.getPhoto_url())
+                                    .customerRating(restaurantEntity.getCustomer_rating())
+                                    .averagePrice(restaurantEntity.getAverage_price_for_two())
+                                    .numberCustomersRated(restaurantEntity.getNumber_of_customers_rated())
+                                    .address(address);
+
+        return new ResponseEntity<RestaurantDetailsResponse>(restaurantDetailsResponse,
+                HttpStatus.OK);
+
     }
 
-    @RequestMapping(method = RequestMethod.PUT, path = "api/restaurant/{restaurant_id}",consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(method = RequestMethod.PUT, path = "/api/restaurant/{restaurant_id}",
+            consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<RestaurantUpdatedResponse> updateRestaurantDetails(@RequestHeader("authorization") final String authorization, @RequestParam Double customerRating, @PathVariable String restaurant_id ) throws AuthorizationFailedException, InvalidRatingException, RestaurantNotFoundException {
 
         RestaurantEntity restaurantEntity = restaurantBusinessService.updateCustomerRating(customerRating, restaurant_id,authorization);
