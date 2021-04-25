@@ -1,6 +1,7 @@
 package com.upgrad.FoodOrderingApp.service.businness;
 
 import com.upgrad.FoodOrderingApp.service.dao.CustomerDao;
+import com.upgrad.FoodOrderingApp.service.entity.AddressEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerAddressEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
@@ -256,8 +257,8 @@ public class CustomerBusinessService {
         return customerEntity;
     }
 
-    public CustomerAddressEntity getCustAddressByAddressId(Integer addressId) {
-        return customerDao.getCustAddressByAddressId(addressId);
+    public CustomerAddressEntity getCustAddressByAddressId(CustomerEntity customer, AddressEntity address) {
+        return customerDao.getCustAddressByAddressId(customer,address);
     }
 
 }
