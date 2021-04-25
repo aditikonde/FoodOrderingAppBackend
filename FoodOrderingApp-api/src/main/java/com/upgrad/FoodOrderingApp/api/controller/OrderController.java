@@ -3,8 +3,7 @@ package com.upgrad.FoodOrderingApp.api.controller;
 import com.upgrad.FoodOrderingApp.api.model.*;
 import com.upgrad.FoodOrderingApp.service.businness.*;
 import com.upgrad.FoodOrderingApp.service.entity.*;
-import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
-import com.upgrad.FoodOrderingApp.service.exception.CouponNotFoundException;
+import com.upgrad.FoodOrderingApp.service.exception.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -159,17 +158,34 @@ public class OrderController {
 
     @RequestMapping(method = RequestMethod.POST,path="/order",consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<SaveOrderResponse> saveOrder(@RequestHeader("authorization") final String authorization,@RequestBody(required = false) final SaveOrderRequest orderRequest)
-    {
+    public ResponseEntity<SaveOrderResponse> saveOrder(@RequestHeader("authorization") final String authorization,@RequestBody(required = false) final SaveOrderRequest orderRequest) throws AuthorizationFailedException, CouponNotFoundException, AddressNotFoundException, PaymentMethodNotFoundException, RestaurantNotFoundException, ItemNotFoundException {
         CustomerAuthEntity customerAuthEntity =
                 customerBusinessService.getCustomerByAuthToken(authorization);
+        if(customerAuthEntity == null)
+            throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
+        if(customerAuthEntity != null && customerAuthEntity.getLogout_at() != null && customerAuthEntity.getLogout_at().isBefore(ZonedDateTime.now()))
+            throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again to access this endpoint.");
+        if(customerAuthEntity != null && customerAuthEntity.getExpires_at().isBefore(ZonedDateTime.now()))
+            throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again to access this endpoint.");
+
         CustomerEntity customerEntity = customerAuthEntity.getCustomer();
         OrdersEntity order = new OrdersEntity();
-        CouponEntity couponEntity = orderBusinessService.getCouponByCouponUUID(orderRequest.getCouponId().toString());
+
         AddressEntity addressEntity = addressBusinessService.getAddressByUUID(orderRequest.getAddressId());
-        CustomerAddressEntity customerAddressEntity = customerBusinessService.getCustAddressByAddressId(addressEntity.getId());
+        if(addressEntity == null)
+            throw new AddressNotFoundException("ANF-003","No address by this id");
+        CouponEntity couponEntity = orderBusinessService.getCouponByCouponUUID(orderRequest.getCouponId().toString());
+        if(couponEntity == null)
+            throw new CouponNotFoundException("CPF-002","No coupon by this id");
+        CustomerAddressEntity customerAddressEntity = customerBusinessService.getCustAddressByAddressId(customerEntity,addressEntity);
+        if(customerAddressEntity == null)
+            throw new AuthorizationFailedException("ATHR-004","You are not authorized to view/update/delete any one else's address");
         PaymentEntity paymentEntity = paymentBusinessService.getPaymentBYUUID(orderRequest.getPaymentId().toString());
+        if(paymentEntity == null)
+            throw new PaymentMethodNotFoundException("PNF-002","No payment method found by this id");
         RestaurantEntity restaurantEntity = restaurantBusinessService.getRestaurantByUUID(orderRequest.getRestaurantId().toString());
+        if(restaurantEntity == null)
+            throw new RestaurantNotFoundException("RNF-001","No restaurant by this id");
         order.setDate(ZonedDateTime.now());
         order.setRestaurant(restaurantEntity);
         order.setBill(orderRequest.getBill());
@@ -184,6 +200,8 @@ public class OrderController {
         for(ItemQuantity item : orderRequest.getItemQuantities())
         {
             ItemEntity itemEntity = itemBusinessService.getItemByUUID(item.getItemId().toString());
+            if(itemEntity == null)
+                throw new ItemNotFoundException("INF-003","No item by this id exist");
             OrderItemEntity orderItemEntity = new OrderItemEntity();
             orderItemEntity.setOrder(savedOrder);
             orderItemEntity.setItem(itemEntity);
@@ -194,5 +212,4 @@ public class OrderController {
         SaveOrderResponse saveOrderResponse = new SaveOrderResponse().id(UUID.fromString(order.getUuid()).toString()).status("ORDER SUCCESSFULLY PLACED");
         return new ResponseEntity<SaveOrderResponse>(saveOrderResponse,HttpStatus.CREATED);
     }
-
 }
