@@ -14,13 +14,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import java.time.ZonedDateTime;
 
 //import java.util.UUID;
-import java.io.*;
 import java.util.*;
 
 import java.util.List;
@@ -179,8 +177,8 @@ public class CustomerBusinessService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void updateCustomerAuthEntity(CustomerAuthEntity customerAuthEntity) {
-        customerDao.updateCustomerAuthEntity(customerAuthEntity);
+    public CustomerAuthEntity updateCustomerAuthEntity(CustomerAuthEntity customerAuthEntity) {
+        return customerDao.updateCustomerAuthEntity(customerAuthEntity);
     }
 
     /*
