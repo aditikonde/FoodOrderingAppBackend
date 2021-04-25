@@ -39,14 +39,14 @@ public class OrderController {
 
     @RequestMapping(method = RequestMethod.GET, path = "/order/coupon/{coupon_name}", produces =
             MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<CouponDetailsResponse> findCouponByName(@PathVariable("coupon_name")
+    public ResponseEntity<CouponDetailsResponse> getCouponByName(@PathVariable("coupon_name")
               final String coupon_name, @RequestHeader("authorization") final String authorization)
                 throws AuthorizationFailedException, CouponNotFoundException {
 
-        String [] bearerToken = authorization.split("Bearer ");
+
 
         CustomerAuthEntity customerAuthEntity =
-                customerBusinessService.getCustomerByAuthToken(bearerToken[1]);
+                customerBusinessService.getCustomerByAuthToken(authorization);
 
         if (customerAuthEntity == null) {
             throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
