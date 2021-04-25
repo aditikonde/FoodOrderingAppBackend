@@ -131,7 +131,9 @@ public class CustomerController {
         CustomerEntity updatedCustomer = customerBusinessService.updateCustomer(authorization,updateCustomer);
 
         UpdateCustomerResponse updateCustomerResponse = new UpdateCustomerResponse().id(UUID
-                .fromString(updatedCustomer.getUuid()).toString()).status("CUSTOMER DETAILS UPDATED SUCCESSFULLY");
+                .fromString(updatedCustomer.getUuid()).toString()).status("CUSTOMER DETAILS UPDATED SUCCESSFULLY")
+                .firstName(updatedCustomer.getFirstName())
+                .lastName(updatedCustomer.getLastName());
 
         return new ResponseEntity<UpdateCustomerResponse>(updateCustomerResponse, HttpStatus.OK);
     }

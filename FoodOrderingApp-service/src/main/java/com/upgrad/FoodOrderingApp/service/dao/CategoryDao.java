@@ -42,6 +42,15 @@ public class CategoryDao {
         }
     }
 
+    public CategoryEntity getCategoryById(final Integer id) {
+        try {
+            return entityManager.createNamedQuery("getCategoryById", CategoryEntity.class).setParameter(
+                    "id", id).getSingleResult();
+        } catch (NoResultException nre) {
+            return null;
+        }
+    }
+
     public List<CategoryEntity> getRestaurantCategoriesByRestaurantID(Integer restaurantid) {
         try {
             return entityManager.createNamedQuery("getRestaurantCategories", CategoryEntity.class).setParameter("restaurant_id", restaurantid).getResultList();
@@ -49,4 +58,5 @@ public class CategoryDao {
             return null;
         }
     }
+
 }

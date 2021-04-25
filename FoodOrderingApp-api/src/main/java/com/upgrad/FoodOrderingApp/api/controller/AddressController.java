@@ -31,7 +31,9 @@ public class AddressController {
     @RequestMapping(method = RequestMethod.POST,path = "/address",consumes =
             MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<SaveAddressResponse> saveAddress(@RequestBody(required = false) final SaveAddressRequest saveAddressRequest,@RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, SaveAddressException {
-        CustomerAuthEntity customerAuthToken = customerBusinessService.getCustomerByAuthToken(authorization);
+
+        CustomerAuthEntity customerAuthToken =
+                customerBusinessService.getCustomerByAuthToken(authorization);
         if(customerAuthToken == null)
             throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
         if(customerAuthToken != null && customerAuthToken.getLogout_at() != null && customerAuthToken.getLogout_at().isBefore(ZonedDateTime.now()))
@@ -78,22 +80,23 @@ public class AddressController {
             throw new AddressNotFoundException("ANF-005","Address id can not be empty");
         }
 
+
         CustomerAuthEntity customerAuthEntity =
                 customerBusinessService.getCustomerByAuthToken(authorization);
 
-//        if (customerAuthEntity == null) {
-//            throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
-//        }
-//        ZonedDateTime now = ZonedDateTime.now();
-//        if (customerAuthEntity.getLogout_at().isBefore(now)) {
-//            throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again " +
-//                    "to access this endpoint.");
-//        }
-//
-//        if (customerAuthEntity.getExpires_at().isBefore(now)) {
-//            throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again" +
-//                    " to access this endpoint.");
-//        }
+        if (customerAuthEntity == null) {
+            throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
+        }
+        ZonedDateTime now = ZonedDateTime.now();
+        if (customerAuthEntity.getLogout_at().isBefore(now)) {
+            throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again " +
+                    "to access this endpoint.");
+        }
+
+        if (customerAuthEntity.getExpires_at().isBefore(now)) {
+            throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again" +
+                    " to access this endpoint.");
+        }
 
 
         final AddressEntity addressEntity = addressBusinessService.deleteAddress(addressId,
@@ -114,57 +117,38 @@ public class AddressController {
             @RequestHeader("authorization") final String authorization)
             throws AuthorizationFailedException {
 
-        List<AddressEntity> allSavedAddress = addressBusinessService.getAllSavedAddressByCustomer(authorization);
+        CustomerAuthEntity customerAuthEntity =
+                customerBusinessService.getCustomerByAuthToken(authorization);
 
+        //CustomerEntity customerEntity = customerBusinessService.getCustomerById(customerAuthEntity.getId());
+        CustomerEntity customerEntity = customerAuthEntity.getCustomer();
+
+        List<CustomerAddressEntity> customerAddressEntity = customerBusinessService.getAddressByCustomer(customerEntity.getId());
         AddressListResponse allSavedAddressResponses = new AddressListResponse();
 
-        List<AddressList> addressList = new ArrayList<AddressList>();
+        for(CustomerAddressEntity customerAddress: customerAddressEntity){
+            AddressList addressList = new AddressList();
 
-        for (int i = 0; i < allSavedAddress.size(); i++) {
-            AddressList addr = new AddressList();
-            AddressListState addressListState = new AddressListState();
+            addressList.setId(UUID.fromString(customerAddress.getAddress().getUuid()));
+            addressList.setFlatBuildingName(customerAddress.getAddress().getFlat_buil_number());
+            addressList.setLocality(customerAddress.getAddress().getLocality());
+            addressList.setCity(customerAddress.getAddress().getCity());
+            addressList.setPincode(customerAddress.getAddress().getPincode());
 
-            addr.setId(UUID.fromString(allSavedAddress.get(i).getUuid()));
-            addr.setFlatBuildingName(allSavedAddress.get(i).getFlat_buil_number());
-            addr.setLocality(allSavedAddress.get(i).getLocality());
-            addr.setCity(allSavedAddress.get(i).getCity());
-            addr.setPincode(allSavedAddress.get(i).getPincode());
-            addressListState.setId(UUID.fromString(allSavedAddress.get(i).getState().getUuid()));
-            addressListState.setStateName(allSavedAddress.get(i).getState().getState_name());
 
-            addressList.add(addr);
-            addr.setState(addressListState);
+            AddressListState state = new AddressListState();
+            StateEntity stateEntity = addressBusinessService.getStateByUuid(customerAddress.getAddress().getUuid());
+            state.id(UUID.fromString(stateEntity.getUuid()))
+                    .stateName(stateEntity.getState_name());
+
+            addressList.setState(state);
+
+            allSavedAddressResponses.addAddressesItem(addressList);
 
         }
-        allSavedAddressResponses.setAddresses(addressList);
 
         return new ResponseEntity<AddressListResponse>(allSavedAddressResponses, HttpStatus.OK);
-//<<<<<<< main
 
-        /*
-//        This endpoint is used to fetch all the states.
-//        Any user can access this endpoint.
-//     */
-//    @RequestMapping(path = "/states", method = RequestMethod.GET, produces =
-//            MediaType.APPLICATION_JSON_UTF8_VALUE)
-//    public ResponseEntity<StatesListResponse> getAllStates() {
-//
-//        List<StateEntity> listOfStates = addressBusinessService.getAllStates();
-//
-//        List<StatesList> list = new ArrayList<StatesList>();
-//        for (int i = 0; i < listOfStates.size(); i++) {
-//            StatesList state = new StatesList();
-//            state.id(UUID.fromString(listOfStates.get(i).getUuid()))
-//                    .stateName(listOfStates.get(i).getState_name());
-//
-//            list.add(state);
-//        }
-//        StatesListResponse statesListResponse = new StatesListResponse();
-//        statesListResponse.states(list);
-//
-//        return new ResponseEntity<StatesListResponse>(statesListResponse, HttpStatus.OK);
- //   }
-//=======
     }
 
     /*
@@ -190,7 +174,6 @@ public class AddressController {
         statesListResponse.states(list);
 
         return new ResponseEntity<StatesListResponse>(statesListResponse, HttpStatus.OK);
-//>>>>>>> main
 
     }
 }
