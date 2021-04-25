@@ -26,8 +26,9 @@ public class CustomerDao {
         return customerAuthEntity;
     }
 
-    public void updateCustomerAuthEntity(final CustomerAuthEntity customerAuthEntity) {
+    public CustomerAuthEntity updateCustomerAuthEntity(final CustomerAuthEntity customerAuthEntity) {
         entityManager.merge(customerAuthEntity);
+        return customerAuthEntity;
     }
 
     public CustomerAuthEntity getCustomerByAccessToken(String accessToken) {

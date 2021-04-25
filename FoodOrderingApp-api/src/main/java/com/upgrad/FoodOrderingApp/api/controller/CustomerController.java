@@ -96,7 +96,10 @@ public class CustomerController {
 
     @RequestMapping(method = RequestMethod.POST, path = "/customer/logout",produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<LogoutResponse> signout(@RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
-        CustomerAuthEntity customerAuthEntity = customerBusinessService.getCustomerByAuthToken(authorization);
+
+        String[] auth = authorization.split(" ");
+
+        CustomerAuthEntity customerAuthEntity = customerBusinessService.getCustomerByAuthToken(auth[1]);
         if(customerAuthEntity == null)
             throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
         if(customerAuthEntity != null && customerAuthEntity.getLogout_at() != null && customerAuthEntity.getLogout_at().isBefore(ZonedDateTime.now()))
