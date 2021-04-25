@@ -44,29 +44,31 @@ public class OrderController {
               final String coupon_name, @RequestHeader("authorization") final String authorization)
                 throws AuthorizationFailedException, CouponNotFoundException {
 
+        String [] bearerToken = authorization.split("Bearer ");
+
         CustomerAuthEntity customerAuthEntity =
-                customerBusinessService.getCustomerByAuthToken(authorization);
+                customerBusinessService.getCustomerByAuthToken(bearerToken[1]);
 
-//        if (customerAuthEntity == null) {
-//            throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
-//        }
-//        ZonedDateTime now = ZonedDateTime.now();
-//        if (customerAuthEntity.getLogout_at().isBefore(now)) {
-//            throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again to access this endpoint." +
-//                    "to access this endpoint.");
-//        }
-//        if (customerAuthEntity.getExpires_at().isBefore(now)) {
-//            throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again" +
-//                    " to access this endpoint.");
-//        }
+        if (customerAuthEntity == null) {
+            throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
+        }
+        ZonedDateTime now = ZonedDateTime.now();
+        if (customerAuthEntity.getLogout_at().isBefore(now)) {
+            throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again to access this endpoint." +
+                    "to access this endpoint.");
+        }
+        if (customerAuthEntity.getExpires_at().isBefore(now)) {
+            throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again" +
+                    " to access this endpoint.");
+        }
 
-//        if(coupon_name == "" || coupon_name == null) {
-//            throw new CouponNotFoundException("CPF-002", "Coupon name field should not be empty");
-//        }
+        if(coupon_name == "" || coupon_name == null) {
+            throw new CouponNotFoundException("CPF-002", "Coupon name field should not be empty");
+        }
         CouponEntity coupon = orderBusinessService.getCouponByName(coupon_name);
-//        if(coupon == null ){
-//            throw new CouponNotFoundException("CPF-001", "No coupon by this name");
-//        }
+        if(coupon == null ){
+            throw new CouponNotFoundException("CPF-001", "No coupon by this name");
+        }
 
         CouponDetailsResponse couponDetailsResponse = new CouponDetailsResponse();
         couponDetailsResponse.id(UUID.fromString(coupon.getUuid()))

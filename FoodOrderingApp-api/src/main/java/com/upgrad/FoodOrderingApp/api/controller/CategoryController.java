@@ -5,6 +5,7 @@ import com.upgrad.FoodOrderingApp.service.businness.CategoryBusinessService;
 import com.upgrad.FoodOrderingApp.service.entity.CategoryEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CategoryItemEntity;
 import com.upgrad.FoodOrderingApp.service.entity.ItemEntity;
+import com.upgrad.FoodOrderingApp.service.exception.CategoryNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -61,16 +62,16 @@ public class CategoryController {
      */
     @RequestMapping(method = RequestMethod.GET, path = "/category/{category_id}", produces =
             MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<CategoryDetailsResponse>findCategoryById(@PathVariable("category_id")final String category_uuid) {
-//        if (category_uuid == "" || category_uuid == null) {
-//            throw CategoryNotFoundException("CNF-001", "Category id field should not be empty");
-//        }
+    public ResponseEntity<CategoryDetailsResponse>getCategoryById(@PathVariable("category_id")final String category_uuid) throws CategoryNotFoundException {
+        if (category_uuid == "" || category_uuid == null) {
+            throw new CategoryNotFoundException("CNF-001", "Category id field should not be empty");
+        }
 
         CategoryEntity category = categoryBusinessService.getCategory(category_uuid);
 
-//        if (category == null) {
-//            throw CategoryNotFoundException("CNF-002", "No category by this id");
-//        }
+        if (category == null) {
+            throw new CategoryNotFoundException("CNF-002", "No category by this id");
+        }
 
         CategoryDetailsResponse categoryDetails = new CategoryDetailsResponse();
         categoryDetails.categoryName(category.getCategory_name());
@@ -82,6 +83,7 @@ public class CategoryController {
 
         for(int i = 0; i < itemListForCategory.size(); i++) {
             ItemList itemList = new ItemList();
+
             String val = "VEG";
             if(itemListForCategory.get(i).getItem().getType().equalsIgnoreCase("1")) {
                 val = "NON_VEG";
@@ -91,6 +93,7 @@ public class CategoryController {
                     .itemName(itemListForCategory.get(i).getItem().getItem_name())
                     .price(itemListForCategory.get(i).getItem().getPrice())
                     .itemType(ItemList.ItemTypeEnum.valueOf(val));
+            //.itemType(itemListForCategory.get(i).getItem().getType())
 
             categoryDetails.addItemListItem(itemList);
         }

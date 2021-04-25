@@ -2,7 +2,7 @@ package com.upgrad.FoodOrderingApp.service.entity;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-
+//import com.upgrad.FoodOrderingApp.api.model.*;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;

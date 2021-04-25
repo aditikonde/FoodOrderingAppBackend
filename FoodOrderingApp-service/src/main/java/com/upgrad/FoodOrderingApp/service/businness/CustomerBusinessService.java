@@ -13,8 +13,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import java.time.ZonedDateTime;
-import java.util.UUID;
+//import java.util.UUID;
+import java.io.*;
+import java.util.*;
 
 @Service
 public class CustomerBusinessService {
@@ -28,12 +33,27 @@ public class CustomerBusinessService {
     public CustomerEntity signup(CustomerEntity customerEntity) throws SignUpRestrictedException {
         CustomerEntity userEntity1 =
                 customerDao.getCustomerByContactNumber(customerEntity.getContactNumber());
+
+
         if (userEntity1 != null) {
-            throw new SignUpRestrictedException("SGR-001", "TThis contact number is already " +
+            throw new SignUpRestrictedException("SGR-001", "This contact number is already " +
                     "registered! Try other contact number.");
         }
 
-        if(customerEntity.getFirstName()==null || customerEntity.getPassword()==null || customerEntity.getEmail()==null) {
+        if(!isEmailValid( customerEntity.getEmail())) {
+            throw new SignUpRestrictedException("SGR-002", "Invalid email-id format!");
+        }
+
+        if(!isContactValid( customerEntity.getContactNumber())) {
+            throw new SignUpRestrictedException("SGR-003", "Invalid contact number!");
+        }
+
+        if(!isPasswordValid( customerEntity.getPassword())) {
+            throw new SignUpRestrictedException("SGR-004", "Weak password!");
+        }
+
+        if(customerEntity.getFirstName()==null || customerEntity.getPassword()==null || customerEntity.getEmail()==null
+        || customerEntity.getFirstName()=="" || customerEntity.getPassword()=="" || customerEntity.getEmail()=="") {
             throw new SignUpRestrictedException("SGR-005", "Except last name all fields should be " +
                     "filled");
         }
@@ -45,12 +65,61 @@ public class CustomerBusinessService {
         return customerDao.createCustomer(customerEntity);
     }
 
+    // helper method to validate email
+    public boolean isEmailValid(String email)
+    {
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\."+
+                "[a-zA-Z0-9_+&*-]+)*@" +
+                "(?:[a-zA-Z0-9-]+\\.)+[a-z" +
+                "A-Z]{2,7}$";
+
+        Pattern pat = Pattern.compile(emailRegex);
+        return pat.matcher(email).matches();
+    }
+
+    // helper method to validate contact
+    public boolean isContactValid(String contact) {
+        Pattern pattern = Pattern.compile("^\\d{10}$");
+        return pattern.matcher(contact).matches();
+    }
+
+    // helper method to validate password
+    public boolean isPasswordValid(String password)
+    {
+        // Checking lower alphabet in string
+        int n = password.length();
+        boolean hasLower = false, hasUpper = false,
+                hasDigit = false, specialChar = false;
+
+        Set<Character> set = new HashSet<Character>(
+                Arrays.asList('#', '@', '$', '%', '&', '^',
+                        '*', '!'));
+        for (char i : password.toCharArray())
+        {
+            if (Character.isLowerCase(i))
+                hasLower = true;
+            if (Character.isUpperCase(i))
+                hasUpper = true;
+            if (Character.isDigit(i))
+                hasDigit = true;
+            if (set.contains(i))
+                specialChar = true;
+        }
+
+        System.out.print("Strength of password:- ");
+        if (hasDigit && hasLower && hasUpper && specialChar && (n >= 8)) {
+            return true;
+        }
+        return false;
+    }
+
+
     @Transactional(propagation = Propagation.REQUIRED)
     public CustomerAuthEntity authenticate(final String contactNumber, final String password) throws AuthenticationFailedException {
-        System.out.println("Inside Auth");
         final CustomerEntity userEntity = customerDao.getCustomerByContactNumber(contactNumber);
         if(userEntity == null)
             throw new AuthenticationFailedException("ATH-001","This contact number has not been registered!");
+
         String encryptedPassword = PasswordCryptographyProvider.encrypt(password,userEntity.getSalt());
         if(encryptedPassword.equals(userEntity.getPassword())) {
             CustomerAuthEntity customerAuthEntity = new CustomerAuthEntity();
@@ -73,7 +142,7 @@ public class CustomerBusinessService {
 
         }
         else {
-            throw new AuthenticationFailedException("ATH-002","Password failed");
+            throw new AuthenticationFailedException("ATH-002","Invalid Credentials");
         }
 
     }

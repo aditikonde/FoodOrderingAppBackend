@@ -37,14 +37,19 @@ public class CustomerController {
     public ResponseEntity<SignupCustomerResponse> signup(@RequestBody(required = false) final SignupCustomerRequest signupUserRequest) throws SignUpRestrictedException {
         final CustomerEntity userEntity = new CustomerEntity();
 
+        if(signupUserRequest.getContactNumber() == "" || signupUserRequest.getContactNumber()== null) {
+            throw new SignUpRestrictedException("SGR-005", "Except last name all fields should be " +
+                    "filled");
+        }
+
         userEntity.setUuid(UUID.randomUUID().toString());
         userEntity.setFirstName(signupUserRequest.getFirstName());
         userEntity.setLastName(signupUserRequest.getLastName());
         userEntity.setEmail(signupUserRequest.getEmailAddress());
         userEntity.setPassword(signupUserRequest.getPassword());
         userEntity.setSalt("1234abc");
-
         userEntity.setContactNumber(signupUserRequest.getContactNumber());
+
 
         final CustomerEntity createdUserEntity = customerBusinessService.signup(userEntity);
         SignupCustomerResponse userResponse =
@@ -61,15 +66,29 @@ public class CustomerController {
     @RequestMapping(method = RequestMethod.POST, path = "/customer/login",consumes =
             MediaType.APPLICATION_JSON_UTF8_VALUE,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<LoginResponse> login(@RequestHeader("authorization") final String authorization) throws AuthenticationFailedException {
+
+        if (!authorization.startsWith("Basic ") || authorization == null || authorization == "") {
+            throw new AuthenticationFailedException("ATH-003", "Incorrect format of decoded customer name and password");
+        }
+
         byte[] decode = Base64.getDecoder().decode(authorization.split("Basic ")[1]);
         String decodedText = new String(decode);
         String[] decodedArr = decodedText.split(":");
+
+        if(decodedArr.length < 2) {
+            throw new AuthenticationFailedException("ATH-003", "Incorrect format of decoded customer name and password");
+        }
         CustomerAuthEntity customerAuthToken = customerBusinessService.authenticate(decodedArr[0],
                 decodedArr[1]);
         CustomerEntity customer = customerAuthToken.getCustomer();
         LoginResponse response =
-                new LoginResponse().id(UUID.fromString(customer.getUuid()).toString()).message("SIGNED IN " +
-                        "SUCCESSFULLY");
+                new LoginResponse().id(UUID.fromString(customer.getUuid()).toString())
+                        .message("SIGNED IN SUCCESSFULLY")
+                        .firstName(customer.getFirstName())
+                        .lastName(customer.getLastName())
+                        .emailAddress(customer.getEmail())
+                        .contactNumber(customer.getContactNumber());
+
         HttpHeaders headers = new HttpHeaders();
         headers.add("access-token",customerAuthToken.getAccess_token());
         return new ResponseEntity<LoginResponse>(response,headers,HttpStatus.OK);
