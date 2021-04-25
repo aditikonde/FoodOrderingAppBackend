@@ -41,4 +41,14 @@ public class CategoryDao {
             return null;
         }
     }
+
+    public CategoryEntity getCategoryById(final Integer id) {
+        try {
+            return entityManager.createNamedQuery("getCategoryById", CategoryEntity.class).setParameter(
+                    "id", id).getSingleResult();
+        } catch (NoResultException nre) {
+            return null;
+        }
+    }
+
 }

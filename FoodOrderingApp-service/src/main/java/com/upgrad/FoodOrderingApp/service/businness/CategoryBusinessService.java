@@ -24,6 +24,9 @@ public class CategoryBusinessService {
     public CategoryEntity getCategory(String uuid) { return categoryDao.getCategoryByUUid(uuid);}
 
     @Transactional
+    public CategoryEntity getCategoryById(Integer id) { return categoryDao.getCategoryById(id);}
+
+    @Transactional
     public List<CategoryItemEntity> getItemsForCategory(Integer category_id) {
         return categoryDao.getAllItemsForCategory(category_id);
     }

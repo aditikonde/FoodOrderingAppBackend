@@ -18,9 +18,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import java.time.ZonedDateTime;
+
 //import java.util.UUID;
 import java.io.*;
 import java.util.*;
+
+import java.util.List;
+import java.util.UUID;
+
 
 @Service
 public class CustomerBusinessService {
@@ -152,6 +157,19 @@ public class CustomerBusinessService {
 
         CustomerAuthEntity customerAuthEntity = customerDao.getCustomerByAccessToken(access_token);
 
+        final ZonedDateTime now = ZonedDateTime.now();
+
+        if (customerAuthEntity == null) {
+            //throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
+
+        } else if (customerAuthEntity.getLogout_at() != null) {
+            // throw new AuthorizationFailedException("ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
+
+        } else if (now.isAfter(customerAuthEntity.getExpires_at()) ) {
+            //throw new AuthorizationFailedException("ATHR-003", "Your session is expired. Log in again to access this endpoint.");
+        }
+
+
         if(customerAuthEntity != null ) {
             return customerAuthEntity;
         }
@@ -259,6 +277,15 @@ public class CustomerBusinessService {
 
     public CustomerAddressEntity getCustAddressByAddressId(CustomerEntity customer, AddressEntity address) {
         return customerDao.getCustAddressByAddressId(customer,address);
+    }
+
+    public List<CustomerAddressEntity> getAddressByCustomer(final Integer id) {
+        return customerDao.getAddressByCustomer(id);
+    }
+
+
+    public CustomerEntity getCustomerById(Integer id) {
+        return customerDao.getCustomerById(id);
     }
 
 }

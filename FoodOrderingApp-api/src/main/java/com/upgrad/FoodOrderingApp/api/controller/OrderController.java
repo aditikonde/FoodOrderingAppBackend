@@ -4,6 +4,9 @@ import com.upgrad.FoodOrderingApp.api.model.*;
 import com.upgrad.FoodOrderingApp.service.businness.*;
 import com.upgrad.FoodOrderingApp.service.entity.*;
 import com.upgrad.FoodOrderingApp.service.exception.*;
+import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
+import com.upgrad.FoodOrderingApp.service.exception.CouponNotFoundException;
+import com.upgrad.FoodOrderingApp.service.exception.RestaurantNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -136,11 +139,16 @@ public class OrderController {
 
             for (OrderItemEntity orderItemEntity : itemBusinessService.getItemsByOrder(ordersEntity)) {
 
+                String val = "VEG";
+                if(orderItemEntity.getItem().getType().equalsIgnoreCase("1")) {
+                    val = "NON_VEG";
+                }
+
                 ItemQuantityResponseItem itemQuantityResponseItem = new ItemQuantityResponseItem();
                 itemQuantityResponseItem.setId(UUID.fromString(orderItemEntity.getItem().getUuid()));
                 itemQuantityResponseItem.setItemName(orderItemEntity.getItem().getItem_name());
                 itemQuantityResponseItem.setItemPrice(orderItemEntity.getItem().getPrice());
-                //itemQuantityResponseItem.setType(ItemQuantityResponseItem.TypeEnum.valueOf(orderItemEntity.getItem().getType().toString()));
+                itemQuantityResponseItem.setType(ItemQuantityResponseItem.TypeEnum.valueOf(val));
 
                 ItemQuantityResponse itemQuantityResponse = new ItemQuantityResponse();
                 itemQuantityResponse.setItem(itemQuantityResponseItem);
@@ -148,11 +156,14 @@ public class OrderController {
                 itemQuantityResponse.setQuantity(orderItemEntity.getQuantity());
 
                 orderList.addItemQuantitiesItem(itemQuantityResponse);
+
+
             }
 
-            customerOrderResponse.addOrdersItem(orderList);
+            orderDetailsList.add(orderList);
 
         }
+        customerOrderResponse.setOrders(orderDetailsList);
 
         return new ResponseEntity<CustomerOrderResponse>(customerOrderResponse, HttpStatus.OK);
 
@@ -161,6 +172,7 @@ public class OrderController {
     @RequestMapping(method = RequestMethod.POST,path="/order",consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<SaveOrderResponse> saveOrder(@RequestHeader("authorization") final String authorization,@RequestBody(required = false) final SaveOrderRequest orderRequest) throws AuthorizationFailedException, CouponNotFoundException, AddressNotFoundException, PaymentMethodNotFoundException, RestaurantNotFoundException, ItemNotFoundException {
+
         CustomerAuthEntity customerAuthEntity =
                 customerBusinessService.getCustomerByAuthToken(authorization);
         if(customerAuthEntity == null)
