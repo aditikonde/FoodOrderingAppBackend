@@ -14,10 +14,12 @@ import javax.validation.constraints.Size;
 @NamedQueries({
         @NamedQuery(name = "getAllCategories", query = "select c from CategoryEntity c"),
         @NamedQuery(name = "getCategoryByUuid", query = "select q from CategoryEntity q where q" +
-                ".uuid = :uuid")
+                ".uuid = :uuid"),
+        @NamedQuery(name = "getCategoryById", query = "select q from CategoryEntity q where q" +
+                ".id = :id  order by q.category_name asc")
 
 })
-public class CategoryEntity {
+public class CategoryEntity  {
 
     public CategoryEntity(){}
 
@@ -30,6 +32,7 @@ public class CategoryEntity {
     @NotNull
     @Size(max = 64)
     private String uuid;
+
 
     @Column(name = "category_name")
     @Size(max = 64)
@@ -77,4 +80,6 @@ public class CategoryEntity {
     public int hashCode() {
         return new HashCodeBuilder().append(this).hashCode();
     }
+
+
 }

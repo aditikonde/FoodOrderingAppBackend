@@ -114,57 +114,38 @@ public class AddressController {
             @RequestHeader("authorization") final String authorization)
             throws AuthorizationFailedException {
 
-        List<AddressEntity> allSavedAddress = addressBusinessService.getAllSavedAddressByCustomer(authorization);
+        CustomerAuthEntity customerAuthEntity =
+                customerBusinessService.getCustomerByAuthToken(authorization);
 
+        //CustomerEntity customerEntity = customerBusinessService.getCustomerById(customerAuthEntity.getId());
+        CustomerEntity customerEntity = customerAuthEntity.getCustomer();
+
+        List<CustomerAddressEntity> customerAddressEntity = customerBusinessService.getAddressByCustomer(customerEntity.getId());
         AddressListResponse allSavedAddressResponses = new AddressListResponse();
 
-        List<AddressList> addressList = new ArrayList<AddressList>();
+        for(CustomerAddressEntity customerAddress: customerAddressEntity){
+            AddressList addressList = new AddressList();
 
-        for (int i = 0; i < allSavedAddress.size(); i++) {
-            AddressList addr = new AddressList();
-            AddressListState addressListState = new AddressListState();
+            addressList.setId(UUID.fromString(customerAddress.getAddress().getUuid()));
+            addressList.setFlatBuildingName(customerAddress.getAddress().getFlat_buil_number());
+            addressList.setLocality(customerAddress.getAddress().getLocality());
+            addressList.setCity(customerAddress.getAddress().getCity());
+            addressList.setPincode(customerAddress.getAddress().getPincode());
 
-            addr.setId(UUID.fromString(allSavedAddress.get(i).getUuid()));
-            addr.setFlatBuildingName(allSavedAddress.get(i).getFlat_buil_number());
-            addr.setLocality(allSavedAddress.get(i).getLocality());
-            addr.setCity(allSavedAddress.get(i).getCity());
-            addr.setPincode(allSavedAddress.get(i).getPincode());
-            addressListState.setId(UUID.fromString(allSavedAddress.get(i).getState().getUuid()));
-            addressListState.setStateName(allSavedAddress.get(i).getState().getState_name());
 
-            addressList.add(addr);
-            addr.setState(addressListState);
+            AddressListState state = new AddressListState();
+            StateEntity stateEntity = addressBusinessService.getStateByUuid(customerAddress.getAddress().getUuid());
+            state.id(UUID.fromString(stateEntity.getUuid()))
+                    .stateName(stateEntity.getState_name());
+
+            addressList.setState(state);
+
+            allSavedAddressResponses.addAddressesItem(addressList);
 
         }
-        allSavedAddressResponses.setAddresses(addressList);
 
         return new ResponseEntity<AddressListResponse>(allSavedAddressResponses, HttpStatus.OK);
-//<<<<<<< main
 
-        /*
-//        This endpoint is used to fetch all the states.
-//        Any user can access this endpoint.
-//     */
-//    @RequestMapping(path = "/states", method = RequestMethod.GET, produces =
-//            MediaType.APPLICATION_JSON_UTF8_VALUE)
-//    public ResponseEntity<StatesListResponse> getAllStates() {
-//
-//        List<StateEntity> listOfStates = addressBusinessService.getAllStates();
-//
-//        List<StatesList> list = new ArrayList<StatesList>();
-//        for (int i = 0; i < listOfStates.size(); i++) {
-//            StatesList state = new StatesList();
-//            state.id(UUID.fromString(listOfStates.get(i).getUuid()))
-//                    .stateName(listOfStates.get(i).getState_name());
-//
-//            list.add(state);
-//        }
-//        StatesListResponse statesListResponse = new StatesListResponse();
-//        statesListResponse.states(list);
-//
-//        return new ResponseEntity<StatesListResponse>(statesListResponse, HttpStatus.OK);
- //   }
-//=======
     }
 
     /*
@@ -190,7 +171,7 @@ public class AddressController {
         statesListResponse.states(list);
 
         return new ResponseEntity<StatesListResponse>(statesListResponse, HttpStatus.OK);
-//>>>>>>> main
+
 
     }
 }

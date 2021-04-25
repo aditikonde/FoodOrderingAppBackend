@@ -12,7 +12,19 @@ import java.util.Objects;
 @Entity
 @Table(name = "CUSTOMER_ADDRESS")
 @NamedQueries({
-        @NamedQuery(name = "custAddressByCustIdAddressId", query = "select ca from CustomerAddressEntity ca where ca.customer=:customer and ca.address=:address")
+
+        @NamedQuery(name = "custAddressByCustIdAddressId", query = "select ca from " +
+                "CustomerAddressEntity ca where ca.customer=:customer and ca.address=:address"),
+
+        @NamedQuery(name = "custAddressByAddressId", query = "select q from CustomerAddressEntity q where q" +
+                " .id = :addressId"),
+        @NamedQuery(name = "getAddressByCustomer", query = "select q from CustomerAddressEntity q where q" +
+                " .customer = :customer"),
+        @NamedQuery(name = "getAddressesByCustomerId", query = "select ca from CustomerAddressEntity ca " +
+                "inner join ca.address add inner join ca.customer cust where cust.id = :id")
+        //select ci.address from CustomerAddressEntity ci" +
+        //                "inner join ci.address add inner join ci.customer cust  where cust.id = :id
+
 })
 public class CustomerAddressEntity implements Serializable {
 
