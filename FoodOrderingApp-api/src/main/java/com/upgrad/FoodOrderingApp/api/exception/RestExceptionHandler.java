@@ -78,7 +78,7 @@ public class RestExceptionHandler {
                                                                    WebRequest request) {
         return new ResponseEntity<ErrorResponse>(
                 new ErrorResponse().code(exc.getCode()).message(exc.getErrorMessage()),
-                HttpStatus.CONFLICT
+                HttpStatus.BAD_REQUEST
         );
     }
 

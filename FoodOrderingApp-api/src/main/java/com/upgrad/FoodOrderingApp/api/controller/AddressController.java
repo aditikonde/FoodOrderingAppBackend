@@ -60,7 +60,7 @@ public class AddressController {
         CustomerAddressEntity customerAddressEntity = new CustomerAddressEntity();
         customerAddressEntity.setAddress(savedNewAddress);
         customerAddressEntity.setCustomer(customerAuthToken.getCustomer());
-        addressBusinessService.createCustomerAddressEntity(customerAddressEntity);
+        CustomerAddressEntity createdAddress = addressBusinessService.createCustomerAddressEntity(customerAddressEntity);
         SaveAddressResponse addressResponse = new SaveAddressResponse().
                 id(UUID.fromString(newAddress.getUuid()).toString()).status("ADDRESS SUCCESSFULLY SAVED");
         return new ResponseEntity<SaveAddressResponse>(addressResponse, HttpStatus.CREATED);

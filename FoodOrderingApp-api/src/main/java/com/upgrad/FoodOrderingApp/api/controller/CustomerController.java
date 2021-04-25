@@ -37,6 +37,12 @@ public class CustomerController {
     public ResponseEntity<SignupCustomerResponse> signup(@RequestBody(required = false) final SignupCustomerRequest signupUserRequest) throws SignUpRestrictedException {
         final CustomerEntity userEntity = new CustomerEntity();
 
+        if(signupUserRequest.getFirstName()==null || signupUserRequest.getEmailAddress()==null || signupUserRequest.getPassword()==null
+                || signupUserRequest.getFirstName().isEmpty() || signupUserRequest.getEmailAddress().isEmpty() || signupUserRequest.getPassword().equals("")) {
+            throw new SignUpRestrictedException("SGR-005", "Except last name all fields should be " +
+                    "filled");
+        }
+
         if(signupUserRequest.getContactNumber() == "" || signupUserRequest.getContactNumber()== null) {
             throw new SignUpRestrictedException("SGR-005", "Except last name all fields should be " +
                     "filled");
@@ -96,18 +102,22 @@ public class CustomerController {
 
     @RequestMapping(method = RequestMethod.POST, path = "/customer/logout",produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<LogoutResponse> signout(@RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
-        CustomerAuthEntity customerAuthEntity = customerBusinessService.getCustomerByAuthToken(authorization);
-        if(customerAuthEntity == null)
-            throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
-        if(customerAuthEntity != null && customerAuthEntity.getLogout_at() != null && customerAuthEntity.getLogout_at().isBefore(ZonedDateTime.now()))
-            throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again to access this endpoint.");
-        if(customerAuthEntity != null && customerAuthEntity.getExpires_at().isBefore(ZonedDateTime.now()))
-            throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again to access this endpoint.");
 
-        customerAuthEntity.setLogout_at(ZonedDateTime.now());
-        CustomerEntity customer = customerAuthEntity.getCustomer();
-        customerBusinessService.updateCustomerAuthEntity(customerAuthEntity);
-        LogoutResponse response = new LogoutResponse().id(UUID.fromString(customer.getUuid()).toString()).message("LOGGED OUT SUCCESSFULLY");
+
+
+//        CustomerAuthEntity customerAuthEntity = customerBusinessService.getCustomerByAuthToken(authorization);
+//        if(customerAuthEntity == null)
+//            throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
+//        if(customerAuthEntity != null && customerAuthEntity.getLogout_at() != null && customerAuthEntity.getLogout_at().isBefore(ZonedDateTime.now()))
+//            throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again to access this endpoint.");
+//        if(customerAuthEntity != null && customerAuthEntity.getExpires_at().isBefore(ZonedDateTime.now()))
+//            throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again to access this endpoint.");
+
+//        customerAuthEntity.setLogout_at(ZonedDateTime.now());
+//        CustomerEntity customer = customerAuthEntity.getCustomer();
+        CustomerAuthEntity entity = customerBusinessService.updateCustomerAuthEntity(authorization);
+        LogoutResponse response =
+                new LogoutResponse().id(UUID.fromString(entity.getCustomer().getUuid()).toString()).message("LOGGED OUT SUCCESSFULLY");
         return new ResponseEntity<LogoutResponse>(response,HttpStatus.OK);
     }
 

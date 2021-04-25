@@ -14,13 +14,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import java.time.ZonedDateTime;
 
 //import java.util.UUID;
-import java.io.*;
 import java.util.*;
 
 import java.util.List;
@@ -33,18 +31,17 @@ public class CustomerBusinessService {
     private CustomerDao customerDao;
 
     @Autowired
+    private CustomerBusinessService customerBusinessService;
+    @Autowired
     private PasswordCryptographyProvider passwordCryptographyProvider;
 
     @Transactional(propagation = Propagation.REQUIRED)
     public CustomerEntity signup(CustomerEntity customerEntity) throws SignUpRestrictedException {
-        CustomerEntity userEntity1 =
-                customerDao.getCustomerByContactNumber(customerEntity.getContactNumber());
-
-
-        if (userEntity1 != null) {
-            throw new SignUpRestrictedException("SGR-001", "This contact number is already " +
-                    "registered! Try other contact number.");
-        }
+//        if(customerEntity.getFirstName()==null || customerEntity.getPassword()==null || customerEntity.getEmail()==null
+//                || customerEntity.getFirstName()=="" || customerEntity.getPassword()=="" || customerEntity.getEmail().equals("")) {
+//            throw new SignUpRestrictedException("SGR-005", "Except last name all fields should be " +
+//                    "filled");
+//        }
 
         if(!isEmailValid( customerEntity.getEmail())) {
             throw new SignUpRestrictedException("SGR-002", "Invalid email-id format!");
@@ -58,10 +55,15 @@ public class CustomerBusinessService {
             throw new SignUpRestrictedException("SGR-004", "Weak password!");
         }
 
-        if(customerEntity.getFirstName()==null || customerEntity.getPassword()==null || customerEntity.getEmail()==null
-        || customerEntity.getFirstName()=="" || customerEntity.getPassword()=="" || customerEntity.getEmail()=="") {
-            throw new SignUpRestrictedException("SGR-005", "Except last name all fields should be " +
-                    "filled");
+
+
+        CustomerEntity userEntity1 =
+                customerDao.getCustomerByContactNumber(customerEntity.getContactNumber());
+
+
+        if (userEntity1 != null) {
+            throw new SignUpRestrictedException("SGR-001", "This contact number is already " +
+                    "registered! Try other contact number.");
         }
 
         String[] encryptedText = passwordCryptographyProvider.encrypt(customerEntity.getPassword());
@@ -179,8 +181,19 @@ public class CustomerBusinessService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void updateCustomerAuthEntity(CustomerAuthEntity customerAuthEntity) {
-        customerDao.updateCustomerAuthEntity(customerAuthEntity);
+    public CustomerAuthEntity updateCustomerAuthEntity(final String authorization) throws AuthorizationFailedException {
+        CustomerAuthEntity customerAuthEntity = customerBusinessService.getCustomerByAuthToken(authorization);
+
+        if(customerAuthEntity == null)
+            throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
+        if(customerAuthEntity != null && customerAuthEntity.getLogout_at() != null && customerAuthEntity.getLogout_at().isBefore(ZonedDateTime.now()))
+            throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again to access this endpoint.");
+        if(customerAuthEntity != null && customerAuthEntity.getExpires_at().isBefore(ZonedDateTime.now()))
+            throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again to access this endpoint.");
+
+        customerAuthEntity.setLogout_at(ZonedDateTime.now());
+        CustomerEntity customer = customerAuthEntity.getCustomer();
+        return customerDao.updateCustomerAuthEntity(customerAuthEntity);
     }
 
     /*
@@ -285,6 +298,30 @@ public class CustomerBusinessService {
         return customerDao.getAddressByCustomer(id);
     }
 
+    public CustomerEntity getCustomer(String access_token) {
+
+        String [] bearerToken = access_token.split("Bearer ");
+        CustomerAuthEntity customerAuthEntity =
+                customerDao.getCustomerByAccessToken(bearerToken[1]);
+
+        final ZonedDateTime now = ZonedDateTime.now();
+
+        if (customerAuthEntity == null) {
+            //throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
+
+        } else if (customerAuthEntity.getLogout_at() != null) {
+            // throw new AuthorizationFailedException("ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
+
+        } else if (now.isAfter(customerAuthEntity.getExpires_at()) ) {
+            //throw new AuthorizationFailedException("ATHR-003", "Your session is expired. Log in again to access this endpoint.");
+        }
+
+
+        if(customerAuthEntity != null ) {
+            return customerAuthEntity.getCustomer();
+        }
+        return null;
+    }
 
     public CustomerEntity getCustomerById(Integer id) {
         return customerDao.getCustomerById(id);
