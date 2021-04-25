@@ -8,14 +8,13 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "RESTAURANT_CATEGORY")
-
 @NamedQueries({
         @NamedQuery(name = "allRestaurantCategoriesByRestaurantId", query = "select c from RestaurantCategoryEntity c where c.restaurant=:restaurant"),
-        @NamedQuery(name = "allRestaurantCategoriesByCategoryId", query = "select c from RestaurantCategoryEntity c where c.category=:category")
-
-
+        @NamedQuery(name = "allRestaurantCategoriesByCategoryId", query = "select c from " +
+                "RestaurantCategoryEntity c where c.category=:category"),
+        @NamedQuery(name = "getRestaurantCategories", query = "select ci.category from RestaurantCategoryEntity ci " +
+                "inner join ci.restaurant res inner join ci.category cat where res.id = :restaurant_id" )
 })
-
 public class RestaurantCategoryEntity {
     public RestaurantCategoryEntity() {}
 
@@ -38,6 +37,17 @@ public class RestaurantCategoryEntity {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "restaurant_id")
     private RestaurantEntity restaurant;
+
+
+    public RestaurantEntity getRestaurant() {
+        return restaurant;
+    }
+
+    public void setRestaurant(RestaurantEntity restaurant) {
+        this.restaurant = restaurant;
+    }
+
+
 
     public Integer getId() {
         return id;
@@ -63,21 +73,12 @@ public class RestaurantCategoryEntity {
         this.category = category;
     }
 
-
-    public RestaurantEntity getRestaurant() {
-        return restaurant;
-    }
-
-    public void setRestaurant(RestaurantEntity restaurant) {
-        this.restaurant = restaurant;
-    }
-
     @Override
     public String toString() {
         return "RestaurantCategoryEntity{" +
                 "id=" + id +
-//                ", item=" + item +
                 ", category=" + category +
+                ", restaurant=" + restaurant +
                 '}';
     }
 

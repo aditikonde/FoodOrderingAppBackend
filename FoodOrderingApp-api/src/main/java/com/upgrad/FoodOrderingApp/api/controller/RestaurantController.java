@@ -73,6 +73,7 @@ public class RestaurantController {
                 .pincode(addressEntity.getPincode())
                 .state(responseAddressState);
 
+        String categories = categoryBusinessService.getRestaurantCategoriesByRestaurantID(restaurantEntityList.get(i).getId());
         RestaurantList res = new RestaurantList().address(responseAddress)
                 .averagePrice(restaurantEntityList.get(i).getAverage_price_for_two())
                 .customerRating(restaurantEntityList.get(i).getCustomer_rating())
@@ -80,7 +81,8 @@ public class RestaurantController {
                 .customerRating(restaurantEntityList.get(i).getCustomer_rating())
                 .id(UUID.fromString(restaurantEntityList.get(i).getUuid()))
                 .photoURL(restaurantEntityList.get(i).getPhoto_url())
-                .restaurantName(restaurantEntityList.get(i).getRestaurant_name());
+                .restaurantName(restaurantEntityList.get(i).getRestaurant_name())
+                .categories(categories);
         return res;
     }
 

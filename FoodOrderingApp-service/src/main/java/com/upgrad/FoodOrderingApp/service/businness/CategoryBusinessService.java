@@ -30,4 +30,16 @@ public class CategoryBusinessService {
     public List<CategoryItemEntity> getItemsForCategory(Integer category_id) {
         return categoryDao.getAllItemsForCategory(category_id);
     }
+
+    public String getRestaurantCategoriesByRestaurantID(Integer restaurantid) {
+
+        List<CategoryEntity> categoryList = categoryDao.getRestaurantCategoriesByRestaurantID(restaurantid);
+        String categories = "";
+        for(CategoryEntity cat : categoryList)
+        {
+            categories += cat.getCategory_name()+",";
+        }
+        categories = categories.substring(0,categories.length()-1);
+        return categories;
+    }
 }
