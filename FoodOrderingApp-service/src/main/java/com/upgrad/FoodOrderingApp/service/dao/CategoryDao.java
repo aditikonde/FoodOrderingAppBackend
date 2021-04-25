@@ -41,4 +41,12 @@ public class CategoryDao {
             return null;
         }
     }
+
+    public List<CategoryEntity> getRestaurantCategoriesByRestaurantID(Integer restaurantid) {
+        try {
+            return entityManager.createNamedQuery("getRestaurantCategories", CategoryEntity.class).setParameter("restaurant_id", restaurantid).getResultList();
+        } catch (NoResultException nre) {
+            return null;
+        }
+    }
 }

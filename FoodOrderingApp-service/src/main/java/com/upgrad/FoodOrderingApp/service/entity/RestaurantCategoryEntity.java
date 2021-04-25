@@ -8,6 +8,10 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "RESTAURANT_CATEGORY")
+@NamedQueries({
+        @NamedQuery(name = "getRestaurantCategories", query = "select ci.category from RestaurantCategoryEntity ci " +
+                "inner join ci.restaurant res inner join ci.category cat where res.id = :restaurant_id" )
+})
 public class RestaurantCategoryEntity {
     public RestaurantCategoryEntity() {}
 
@@ -20,6 +24,19 @@ public class RestaurantCategoryEntity {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "item_id")
     private ItemEntity item;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "restaurant_id")
+    private RestaurantEntity restaurant;
+
+    public RestaurantEntity getRestaurant() {
+        return restaurant;
+    }
+
+    public void setRestaurant(RestaurantEntity restaurant) {
+        this.restaurant = restaurant;
+    }
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
@@ -50,11 +67,21 @@ public class RestaurantCategoryEntity {
         this.category = category;
     }
 
+    /*@Override
+    public String toString() {
+        return "RestaurantCategoryEntity{" +
+                "id=" + id +
+                ", item=" + item +
+                ", category=" + category +
+                '}';
+    }*/
+
     @Override
     public String toString() {
         return "RestaurantCategoryEntity{" +
                 "id=" + id +
                 ", item=" + item +
+                ", restaurant=" + restaurant +
                 ", category=" + category +
                 '}';
     }
