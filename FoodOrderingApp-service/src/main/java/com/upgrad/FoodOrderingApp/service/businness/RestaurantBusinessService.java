@@ -34,30 +34,16 @@ public class RestaurantBusinessService {
     public RestaurantEntity updateCustomerRating (final Double customerRating, final String restaurant_id, final String authorizationToken)
             throws AuthorizationFailedException, RestaurantNotFoundException, InvalidRatingException {
 
-        CustomerAuthEntity customerAuthEntity = customerDao.getCustomerByAccessToken(authorizationToken);
+        CustomerAuthEntity customerAuthEntity = customerBusinessService.getCustomerByAuthToken(authorizationToken);
+
         if (customerAuthEntity == null) {
-            //throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
+            throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
         }
 
-        //uncomment when logout endpoint is done
-
-//        final ZonedDateTime now = ZonedDateTime.now();
-//        final ZonedDateTime loggedOutTime = customerAuthEntity.getLogoutAt();
-//        final long difference = now.compareTo(loggedOutTime);
-//        if (difference > 0) {
-//            throw new AuthorizationFailedException("ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
-//        }
-
-        final ZonedDateTime now = ZonedDateTime.now();
-        final ZonedDateTime expireTime = customerAuthEntity.getExpires_at();
-        final long difference = now.compareTo(expireTime);
-
-        if (difference > 0) {
-            //throw new AuthorizationFailedException("ATHR-003", "Your session is expired. Log in again to access this endpoint.");
-        }
-
-        customerBusinessService.getCustomerByAuthToken(authorizationToken);
-
+        if(customerAuthEntity != null && customerAuthEntity.getLogout_at() != null && customerAuthEntity.getLogout_at().isBefore(ZonedDateTime.now()))
+            throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again to access this endpoint.");
+        if(customerAuthEntity != null && customerAuthEntity.getExpires_at().isBefore(ZonedDateTime.now()))
+            throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again to access this endpoint.");
 
         if(restaurant_id == null || restaurant_id.isEmpty() || restaurant_id.equalsIgnoreCase("\"\"")){
             throw new RestaurantNotFoundException("RNF-002", "Restaurant id field should not be empty");
@@ -76,9 +62,10 @@ public class RestaurantBusinessService {
         }
 
         // Now calculate new customer rating  and set the updated rating and attach it to the restaurantEntity
-        BigDecimal oldRatingCalculation = (restaurantEntity.getCustomer_rating().multiply(new BigDecimal(restaurantEntity.getNumber_of_customers_rated())));
-        BigDecimal calculatedRating = (oldRatingCalculation.add(new BigDecimal(customerRating))).divide(new BigDecimal(restaurantEntity.getNumber_of_customers_rated() + 1));
-        restaurantEntity.setCustomer_rating(calculatedRating);
+//        BigDecimal oldRatingCalculation = (restaurantEntity.getCustomer_rating().multiply(new BigDecimal(restaurantEntity.getNumber_of_customers_rated())));
+//        BigDecimal calculatedRating = (oldRatingCalculation.add(new BigDecimal(customerRating))).divide(new BigDecimal(restaurantEntity.getNumber_of_customers_rated() + 1));
+
+        restaurantEntity.setCustomer_rating(BigDecimal.valueOf(customerRating));
         restaurantEntity.setNumber_of_customers_rated(restaurantEntity.getNumber_of_customers_rated() + 1);
 
         //called restaurantDao to merge the content and update in the database

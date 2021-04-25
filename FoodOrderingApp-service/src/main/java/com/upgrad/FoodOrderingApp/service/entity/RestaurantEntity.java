@@ -40,7 +40,6 @@ public class RestaurantEntity {
     private String restaurant_name;
 
     @Column(name = "photo_url")
-    @Size(max = 64)
     private String photo_url;
 
     @Column(name = "customer_rating")
