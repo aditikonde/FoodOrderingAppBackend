@@ -31,7 +31,9 @@ public class AddressController {
     @RequestMapping(method = RequestMethod.POST,path = "/address",consumes =
             MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<SaveAddressResponse> saveAddress(@RequestBody(required = false) final SaveAddressRequest saveAddressRequest,@RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, SaveAddressException {
-        CustomerAuthEntity customerAuthToken = customerBusinessService.getCustomerByAuthToken(authorization);
+
+        CustomerAuthEntity customerAuthToken =
+                customerBusinessService.getCustomerByAuthToken(authorization);
         if(customerAuthToken == null)
             throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
         if(customerAuthToken != null && customerAuthToken.getLogout_at() != null && customerAuthToken.getLogout_at().isBefore(ZonedDateTime.now()))
@@ -78,22 +80,23 @@ public class AddressController {
             throw new AddressNotFoundException("ANF-005","Address id can not be empty");
         }
 
+
         CustomerAuthEntity customerAuthEntity =
                 customerBusinessService.getCustomerByAuthToken(authorization);
 
-//        if (customerAuthEntity == null) {
-//            throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
-//        }
-//        ZonedDateTime now = ZonedDateTime.now();
-//        if (customerAuthEntity.getLogout_at().isBefore(now)) {
-//            throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again " +
-//                    "to access this endpoint.");
-//        }
-//
-//        if (customerAuthEntity.getExpires_at().isBefore(now)) {
-//            throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again" +
-//                    " to access this endpoint.");
-//        }
+        if (customerAuthEntity == null) {
+            throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
+        }
+        ZonedDateTime now = ZonedDateTime.now();
+        if (customerAuthEntity.getLogout_at().isBefore(now)) {
+            throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again " +
+                    "to access this endpoint.");
+        }
+
+        if (customerAuthEntity.getExpires_at().isBefore(now)) {
+            throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again" +
+                    " to access this endpoint.");
+        }
 
 
         final AddressEntity addressEntity = addressBusinessService.deleteAddress(addressId,
@@ -171,7 +174,6 @@ public class AddressController {
         statesListResponse.states(list);
 
         return new ResponseEntity<StatesListResponse>(statesListResponse, HttpStatus.OK);
-
 
     }
 }

@@ -155,7 +155,9 @@ public class CustomerBusinessService {
 
     public CustomerAuthEntity getCustomerByAuthToken(String access_token) {
 
-        CustomerAuthEntity customerAuthEntity = customerDao.getCustomerByAccessToken(access_token);
+        String [] bearerToken = access_token.split("Bearer ");
+        CustomerAuthEntity customerAuthEntity =
+                customerDao.getCustomerByAccessToken(bearerToken[1]);
 
         final ZonedDateTime now = ZonedDateTime.now();
 
