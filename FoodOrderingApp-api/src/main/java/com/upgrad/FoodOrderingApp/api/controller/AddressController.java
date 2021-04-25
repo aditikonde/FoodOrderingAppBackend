@@ -84,19 +84,19 @@ public class AddressController {
         CustomerAuthEntity customerAuthEntity =
                 customerBusinessService.getCustomerByAuthToken(authorization);
 
-//        if (customerAuthEntity == null) {
-//            throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
-//        }
-//        ZonedDateTime now = ZonedDateTime.now();
-//        if (customerAuthEntity.getLogout_at().isBefore(now)) {
-//            throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again " +
-//                    "to access this endpoint.");
-//        }
-//
-//        if (customerAuthEntity.getExpires_at().isBefore(now)) {
-//            throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again" +
-//                    " to access this endpoint.");
-//        }
+        if (customerAuthEntity == null) {
+            throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
+        }
+        ZonedDateTime now = ZonedDateTime.now();
+        if (customerAuthEntity.getLogout_at().isBefore(now)) {
+            throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again " +
+                    "to access this endpoint.");
+        }
+
+        if (customerAuthEntity.getExpires_at().isBefore(now)) {
+            throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again" +
+                    " to access this endpoint.");
+        }
 
 
         final AddressEntity addressEntity = addressBusinessService.deleteAddress(addressId,
