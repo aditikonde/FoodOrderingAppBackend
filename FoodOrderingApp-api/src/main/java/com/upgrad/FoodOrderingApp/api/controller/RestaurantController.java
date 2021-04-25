@@ -44,7 +44,9 @@ public class RestaurantController {
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "/restaurant/name/{restaurant_name}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<RestaurantListResponse> getRestaurantsByName(@PathVariable("restaurant_name") final String restaurant_name) {
+    public ResponseEntity<RestaurantListResponse> getRestaurantsByName(@PathVariable("restaurant_name") final String restaurant_name) throws RestaurantNotFoundException {
+        if(restaurant_name.equals(""))
+            throw new RestaurantNotFoundException("RNF-003","Restaurant name field should not be empty");
         List<RestaurantEntity> restaurantEntityList = restaurantBusinessService.getAllRestaurants();
         List<RestaurantList> list = new ArrayList<>();
         for (int i = 0; i < restaurantEntityList.size(); i++) {
@@ -58,8 +60,7 @@ public class RestaurantController {
 
     private RestaurantList getRestaurantDetails(List<RestaurantEntity> restaurantEntityList, int i)
     {
-        AddressEntity addressEntity =
-                addressBusinessService.getAddressById(restaurantEntityList.get(i).getAddress().getId());
+        AddressEntity addressEntity = addressBusinessService.getAddressById(restaurantEntityList.get(i).getAddress().getId());
         StateEntity stateEntity = addressBusinessService.getStateByUuid(addressEntity.getState().getUuid());
         RestaurantDetailsResponseAddressState responseAddressState = new RestaurantDetailsResponseAddressState().stateName(stateEntity.getState_name())
                 .id(UUID.fromString(stateEntity.getUuid()));

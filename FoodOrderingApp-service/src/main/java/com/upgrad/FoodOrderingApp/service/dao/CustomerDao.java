@@ -1,5 +1,6 @@
 package com.upgrad.FoodOrderingApp.service.dao;
 
+import com.upgrad.FoodOrderingApp.service.entity.AddressEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerAddressEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
@@ -61,10 +62,11 @@ public class CustomerDao {
         }
     }
 
-    public CustomerAddressEntity getCustAddressByAddressId(Integer addressId) {
+    public CustomerAddressEntity getCustAddressByAddressId(CustomerEntity customer, AddressEntity address) {
         try {
-            return entityManager.createNamedQuery("custAddressByAddressId", CustomerAddressEntity.class)
-                    .setParameter("addressId", addressId)
+            return entityManager.createNamedQuery("custAddressByCustIdAddressId", CustomerAddressEntity.class)
+                    .setParameter("customer",customer)
+                    .setParameter("address", address)
                     .getSingleResult();
         } catch(NoResultException nre) {
             return null;

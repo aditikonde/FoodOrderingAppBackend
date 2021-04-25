@@ -52,7 +52,8 @@ public class RestaurantEntity {
     @NotNull
     private Integer number_of_customers_rated;
 
-    @Column(name = "address_id")
+    @ManyToOne
+    @JoinColumn(name = "address_id")
     @NotNull
     private AddressEntity address;
 
