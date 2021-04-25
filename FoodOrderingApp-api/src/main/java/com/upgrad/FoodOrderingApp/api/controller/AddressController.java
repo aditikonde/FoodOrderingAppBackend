@@ -32,34 +32,38 @@ public class AddressController {
             MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<SaveAddressResponse> saveAddress(@RequestBody(required = false) final SaveAddressRequest saveAddressRequest,@RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, SaveAddressException {
         CustomerAuthEntity customerAuthToken = customerBusinessService.getCustomerByAuthToken(authorization);
-//        if(customerAuthToken == null)
-//            throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
-//        if(customerAuthToken != null && customerAuthToken.getLogout_at() != null && customerAuthToken.getLogout_at().isBefore(ZonedDateTime.now()))
-//            throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again to access this endpoint.");
-//        if(customerAuthToken != null && customerAuthToken.getExpires_at().isBefore(ZonedDateTime.now()))
-//            throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again to access this endpoint.");
-//        if(saveAddressRequest.getFlatBuildingName().equals("") || saveAddressRequest.getLocality().equals("")||
-//        saveAddressRequest.getCity().equals("") || saveAddressRequest.getPincode().equals("") ||
-//        saveAddressRequest.getStateUuid().equals(""))
-//            throw new SaveAddressException("SAR-001","No field can be empty");
-
-            AddressEntity newAddress = new AddressEntity();
-            StateEntity stateEntity = addressBusinessService.getStateByUuid(saveAddressRequest.getStateUuid().toString());
-            newAddress.setFlat_buil_number(saveAddressRequest.getFlatBuildingName());
-            newAddress.setLocality(saveAddressRequest.getLocality());
-            newAddress.setCity(saveAddressRequest.getCity());
-            newAddress.setPincode(saveAddressRequest.getPincode());
-            newAddress.setState(stateEntity);
-            newAddress.setUuid(UUID.randomUUID().toString());
-            AddressEntity savedNewAddress = addressBusinessService.saveAddress(newAddress);
-            CustomerAddressEntity customerAddressEntity = new CustomerAddressEntity();
-            customerAddressEntity.setAddress(savedNewAddress);
-            customerAddressEntity.setCustomer(customerAuthToken.getCustomer());
-            addressBusinessService.createCustomerAddressEntity(customerAddressEntity);
-            SaveAddressResponse addressResponse = new SaveAddressResponse().
-                    id(UUID.fromString(newAddress.getUuid()).toString()).status("ADDRESS SUCCESSFULLY SAVED");
-            return new ResponseEntity<SaveAddressResponse>(addressResponse, HttpStatus.CREATED);
+        if(customerAuthToken == null)
+            throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
+        if(customerAuthToken != null && customerAuthToken.getLogout_at() != null && customerAuthToken.getLogout_at().isBefore(ZonedDateTime.now()))
+            throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again to access this endpoint.");
+        if(customerAuthToken != null && customerAuthToken.getExpires_at().isBefore(ZonedDateTime.now()))
+            throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again to access this endpoint.");
+        if(saveAddressRequest.getFlatBuildingName().equals("") || saveAddressRequest.getLocality().equals("")||
+                saveAddressRequest.getCity().equals("") || saveAddressRequest.getPincode().equals("") ||
+                saveAddressRequest.getStateUuid().equals(""))
+            throw new SaveAddressException("SAR-001","No field can be empty");
+        if(saveAddressRequest.getPincode().length() != 6 || !saveAddressRequest.getPincode().matches("[0-9]+"))
+            throw new SaveAddressException("SAR-002","Invalid pincode");
+        AddressEntity newAddress = new AddressEntity();
+        StateEntity stateEntity = addressBusinessService.getStateByUuid(saveAddressRequest.getStateUuid().toString());
+        if(stateEntity == null)
+            throw new SaveAddressException("ANF-002","No state by this id");
+        newAddress.setFlat_buil_number(saveAddressRequest.getFlatBuildingName());
+        newAddress.setLocality(saveAddressRequest.getLocality());
+        newAddress.setCity(saveAddressRequest.getCity());
+        newAddress.setPincode(saveAddressRequest.getPincode());
+        newAddress.setState(stateEntity);
+        newAddress.setUuid(UUID.randomUUID().toString());
+        AddressEntity savedNewAddress = addressBusinessService.saveAddress(newAddress);
+        CustomerAddressEntity customerAddressEntity = new CustomerAddressEntity();
+        customerAddressEntity.setAddress(savedNewAddress);
+        customerAddressEntity.setCustomer(customerAuthToken.getCustomer());
+        addressBusinessService.createCustomerAddressEntity(customerAddressEntity);
+        SaveAddressResponse addressResponse = new SaveAddressResponse().
+                id(UUID.fromString(newAddress.getUuid()).toString()).status("ADDRESS SUCCESSFULLY SAVED");
+        return new ResponseEntity<SaveAddressResponse>(addressResponse, HttpStatus.CREATED);
     }
+
 
     /*
         This endpoint is used to delete an address that has been saved by a customer. Only the owner
