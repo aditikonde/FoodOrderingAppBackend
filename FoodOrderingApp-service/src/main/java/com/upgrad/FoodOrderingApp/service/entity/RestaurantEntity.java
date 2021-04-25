@@ -14,7 +14,9 @@ import java.math.BigDecimal;
         @NamedQuery(name = "allRestaurants", query = "select c from RestaurantEntity c"),
         @NamedQuery(name = "findRestaurantByUUId",query = "select r from RestaurantEntity r where" +
                 " lower(r.uuid) = :restaurantUUID"),
-        @NamedQuery(name = "getRestaurantAddress",query = "select r from RestaurantEntity r where lower(r.uuid) = :restaurantUUID")
+        @NamedQuery(name = "getRestaurantAddress",query = "select r from RestaurantEntity r where lower(r.uuid) = :restaurantUUID"),
+        @NamedQuery(name = "findRestaurantById",query = "select r from RestaurantEntity r where" +
+                " lower(r.id) = :restaurantID order by r.restaurant_name asc")
 
 })
 public class RestaurantEntity {
@@ -52,7 +54,8 @@ public class RestaurantEntity {
     @NotNull
     private Integer number_of_customers_rated;
 
-    @Column(name = "address_id")
+    @ManyToOne
+    @JoinColumn(name = "address_id")
     @NotNull
     private AddressEntity address;
 
