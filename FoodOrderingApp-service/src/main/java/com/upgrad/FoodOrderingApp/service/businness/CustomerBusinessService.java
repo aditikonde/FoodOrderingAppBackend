@@ -296,9 +296,10 @@ public class CustomerBusinessService {
 
     public CustomerEntity getCustomer(String access_token) throws AuthorizationFailedException {
 
-        String [] bearerToken = access_token.split("Bearer ");
-        CustomerAuthEntity customerAuthEntity =
-                customerDao.getCustomerByAccessToken(bearerToken[1]);
+//        String [] bearerToken = access_token.split("Bearer ");
+//        CustomerAuthEntity customerAuthEntity =
+//                customerDao.getCustomerByAccessToken(bearerToken[1]);
+        CustomerAuthEntity customerAuthEntity = getCustomerByAuthToken(access_token);
 
         final ZonedDateTime now = ZonedDateTime.now();
 

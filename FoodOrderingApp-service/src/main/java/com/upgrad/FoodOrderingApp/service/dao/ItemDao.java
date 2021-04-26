@@ -12,10 +12,21 @@ public class ItemDao {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public ItemEntity getItemByUUID(String itemID) {
+    public ItemEntity getItemById(final Integer itemId) {
         try {
-            return entityManager.createNamedQuery("getItemByUUID", ItemEntity.class).setParameter(
-                    "itemID", itemID).getSingleResult();
+            return entityManager.createNamedQuery("getItemById", ItemEntity.class).setParameter(
+                    "id", itemId)
+                    .getSingleResult();
+        } catch (NoResultException nre) {
+            return null;
+        }
+    }
+
+        public ItemEntity getItemByUUID(final String itemUuid) {
+        try {
+            return entityManager.createNamedQuery("getItemByUuid", ItemEntity.class).setParameter(
+                    "uuid", itemUuid)
+                    .getSingleResult();
         } catch (NoResultException nre) {
             return null;
         }
