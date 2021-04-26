@@ -131,6 +131,9 @@ public class CustomerController {
             @RequestHeader("authorization") final String authorization,
             final UpdateCustomerRequest updateCustomerRequest) throws AuthorizationFailedException, UpdateCustomerException {
 
+        if(updateCustomerRequest.getFirstName()==null || updateCustomerRequest.getFirstName().isEmpty()){
+            throw new UpdateCustomerException("UCR-002", "First name field should not be empty");
+        }
         final CustomerEntity updateCustomer = new CustomerEntity();
         updateCustomer.setFirstName(updateCustomerRequest.getFirstName());
         updateCustomer.setLastName(updateCustomerRequest.getLastName());
