@@ -184,12 +184,12 @@ public class CustomerBusinessService {
     public CustomerAuthEntity updateCustomerAuthEntity(final String authorization) throws AuthorizationFailedException {
         CustomerAuthEntity customerAuthEntity = customerBusinessService.getCustomerByAuthToken(authorization);
 
-        if(customerAuthEntity == null)
-            throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
-        if(customerAuthEntity != null && customerAuthEntity.getLogout_at() != null && customerAuthEntity.getLogout_at().isBefore(ZonedDateTime.now()))
-            throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again to access this endpoint.");
-        if(customerAuthEntity != null && customerAuthEntity.getExpires_at().isBefore(ZonedDateTime.now()))
-            throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again to access this endpoint.");
+//        if(customerAuthEntity == null)
+//            throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
+//        if(customerAuthEntity != null && customerAuthEntity.getLogout_at() != null && customerAuthEntity.getLogout_at().isBefore(ZonedDateTime.now()))
+//            throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again to access this endpoint.");
+//        if(customerAuthEntity != null && customerAuthEntity.getExpires_at().isBefore(ZonedDateTime.now()))
+//            throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again to access this endpoint.");
 
         customerAuthEntity.setLogout_at(ZonedDateTime.now());
         CustomerEntity customer = customerAuthEntity.getCustomer();
@@ -298,7 +298,7 @@ public class CustomerBusinessService {
         return customerDao.getAddressByCustomer(id);
     }
 
-    public CustomerEntity getCustomer(String access_token) {
+    public CustomerEntity getCustomer(String access_token) throws AuthorizationFailedException {
 
         String [] bearerToken = access_token.split("Bearer ");
         CustomerAuthEntity customerAuthEntity =
@@ -306,16 +306,12 @@ public class CustomerBusinessService {
 
         final ZonedDateTime now = ZonedDateTime.now();
 
-        if (customerAuthEntity == null) {
-            //throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
-
-        } else if (customerAuthEntity.getLogout_at() != null) {
-            // throw new AuthorizationFailedException("ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
-
-        } else if (now.isAfter(customerAuthEntity.getExpires_at()) ) {
-            //throw new AuthorizationFailedException("ATHR-003", "Your session is expired. Log in again to access this endpoint.");
-        }
-
+         if (customerAuthEntity.getLogout_at() != null)
+             throw new AuthorizationFailedException("ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
+        if (now.isAfter(customerAuthEntity.getExpires_at()) )
+            throw new AuthorizationFailedException("ATHR-003", "Your session is expired. Log in again to access this endpoint.");
+        if (customerAuthEntity == null)
+            throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
 
         if(customerAuthEntity != null ) {
             return customerAuthEntity.getCustomer();

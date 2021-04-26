@@ -105,16 +105,16 @@ public class CustomerController {
 
 
 
-//        CustomerAuthEntity customerAuthEntity = customerBusinessService.getCustomerByAuthToken(authorization);
-//        if(customerAuthEntity == null)
-//            throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
-//        if(customerAuthEntity != null && customerAuthEntity.getLogout_at() != null && customerAuthEntity.getLogout_at().isBefore(ZonedDateTime.now()))
-//            throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again to access this endpoint.");
-//        if(customerAuthEntity != null && customerAuthEntity.getExpires_at().isBefore(ZonedDateTime.now()))
-//            throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again to access this endpoint.");
+        CustomerAuthEntity customerAuthEntity = customerBusinessService.getCustomerByAuthToken(authorization);
+        if(customerAuthEntity == null)
+            throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
+        if(customerAuthEntity != null && customerAuthEntity.getLogout_at() != null && customerAuthEntity.getLogout_at().isBefore(ZonedDateTime.now()))
+            throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again to access this endpoint.");
+        if(customerAuthEntity != null && customerAuthEntity.getExpires_at().isBefore(ZonedDateTime.now()))
+            throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again to access this endpoint.");
 
-//        customerAuthEntity.setLogout_at(ZonedDateTime.now());
-//        CustomerEntity customer = customerAuthEntity.getCustomer();
+        customerAuthEntity.setLogout_at(ZonedDateTime.now());
+        CustomerEntity customer = customerAuthEntity.getCustomer();
         CustomerAuthEntity entity = customerBusinessService.updateCustomerAuthEntity(authorization);
         LogoutResponse response =
                 new LogoutResponse().id(UUID.fromString(entity.getCustomer().getUuid()).toString()).message("LOGGED OUT SUCCESSFULLY");
