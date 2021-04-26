@@ -131,6 +131,15 @@ public class CustomerController {
             @RequestHeader("authorization") final String authorization,
             final UpdateCustomerRequest updateCustomerRequest) throws AuthorizationFailedException, UpdateCustomerException {
 
+        CustomerAuthEntity customerAuthEntity = customerBusinessService.getCustomerByAuthToken(authorization);
+        if(customerAuthEntity == null)
+            throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
+        if(customerAuthEntity != null && customerAuthEntity.getLogout_at() != null && customerAuthEntity.getLogout_at().isBefore(ZonedDateTime.now()))
+            throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again to access this endpoint.");
+        if(customerAuthEntity != null && customerAuthEntity.getExpires_at().isBefore(ZonedDateTime.now()))
+            throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again to access this endpoint.");
+
+
         if(updateCustomerRequest.getFirstName()==null || updateCustomerRequest.getFirstName().isEmpty()){
             throw new UpdateCustomerException("UCR-002", "First name field should not be empty");
         }
@@ -154,9 +163,20 @@ public class CustomerController {
                                                                          @RequestHeader("authorization") final String authorization)
             throws AuthorizationFailedException, UpdateCustomerException {
 
-
         String oldPassword = customerUpdatePasswordRequest.getOldPassword();
         String newPassword = customerUpdatePasswordRequest.getNewPassword();
+
+        if (oldPassword == null || newPassword ==  null || oldPassword.isEmpty() || newPassword.isEmpty()) {
+            throw new UpdateCustomerException("UCR-003", "No field should be empty");
+        }
+
+        CustomerAuthEntity customerAuthEntity = customerBusinessService.getCustomerByAuthToken(authorization);
+        if(customerAuthEntity == null)
+            throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
+        if(customerAuthEntity != null && customerAuthEntity.getLogout_at() != null && customerAuthEntity.getLogout_at().isBefore(ZonedDateTime.now()))
+            throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again to access this endpoint.");
+        if(customerAuthEntity != null && customerAuthEntity.getExpires_at().isBefore(ZonedDateTime.now()))
+            throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again to access this endpoint.");
 
         CustomerEntity customerEntity = customerBusinessService.changePassword(oldPassword, newPassword,authorization);
 

@@ -41,9 +41,9 @@ public class AddressBusinessService {
             AuthorizationFailedException, AddressNotFoundException {
 
         AddressEntity addressEntity =addressDao.getAddressByUuid(addressId);
-//        if (addressEntity == null) {
-//            throw new AddressNotFoundException("ANF-003","No address by this id");
-//        }
+        if (addressEntity == null) {
+            throw new AddressNotFoundException("ANF-003","No address by this id");
+        }
         CustomerEntity loggedInCustomer = customerAuthEntity.getCustomer();
         //if (loggedInCustomer.getUuid() != customerAddressEntity.getCustomer)
         // customer auth table needed to be updated

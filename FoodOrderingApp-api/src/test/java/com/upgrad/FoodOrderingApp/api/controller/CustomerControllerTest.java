@@ -370,7 +370,7 @@ public void shouldLogoutForValidRequest() throws Exception {
 //                .andExpect(status().isBadRequest())
 //                .andExpect(jsonPath("code").value("UCR-002"));
 //        verify(mockCustomerService, times(0)).getCustomer(anyString());
-//        verify(mockCustomerService, times(0)).updateCustomer(any());
+//        verify(mockCustomerService, times(0)).updateCustomer(anyString(), any());
 //    }
 //
 //    //This test case passes when you have handled the exception of trying to update customer details when the customer
@@ -462,41 +462,41 @@ public void shouldLogoutForValidRequest() throws Exception {
 //                .andExpect(status().isBadRequest())
 //                .andExpect(jsonPath("code").value("UCR-003"));
 //        verify(mockCustomerService, times(0)).getCustomer(anyString());
-//        verify(mockCustomerService, times(0)).updateCustomer(any());
+//        verify(mockCustomerService, times(0)).updateCustomer(any(), any());
 //    }
-//
+
 //    //This test case passes when you have handled the exception of trying to update your password when your new password
 //    // field is empty
-//    @Test
-//    public void shouldNotUpdateCustomerPasswordIfNewPasswordIsEmpty() throws Exception {
-//        mockMvc
-//                .perform(put("/customer/password")
-//                        .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
-//                        .header("authorization", "auth")
-//                        .content("{\"old_password\":\"oldPwd\", \"new_password\":\"\"}"))
-//                .andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("code").value("UCR-003"));
-//        verify(mockCustomerService, times(0)).getCustomer(anyString());
-//        verify(mockCustomerService, times(0)).updateCustomer(any());
-//    }
+    @Test
+    public void shouldNotUpdateCustomerPasswordIfNewPasswordIsEmpty() throws Exception {
+        mockMvc
+                .perform(put("/customer/password")
+                        .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                        .header("authorization", "auth")
+                        .content("{\"old_password\":\"oldPwd\", \"new_password\":\"\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("code").value("UCR-003"));
+        verify(mockCustomerService, times(0)).getCustomer(anyString());
+        verify(mockCustomerService, times(0)).updateCustomer(any(),any());
+    }
 //
 //    //This test case passes when you have handled the exception of trying to update your password but you are not
 //    // logged in.
-//    @Test
-//    public void shouldNotUpdateCustomerPasswordWhenCustomerIsNotLoggedIn() throws Exception {
-//        when(mockCustomerService.getCustomer("auth"))
-//                .thenThrow(new AuthorizationFailedException("ATHR-001", "Customer is not Logged in."));
-//
-//        mockMvc
-//                .perform(put("/customer/password")
-//                        .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
-//                        .header("authorization", "Bearer auth")
-//                        .content("{\"old_password\":\"oldPwd\", \"new_password\":\"newPwd\"}"))
-//                .andExpect(status().isForbidden())
-//                .andExpect(jsonPath("code").value("ATHR-001"));
-//        verify(mockCustomerService, times(1)).getCustomer("auth");
-//        verify(mockCustomerService, times(0)).updateCustomer(any());
-//    }
+    @Test
+    public void shouldNotUpdateCustomerPasswordWhenCustomerIsNotLoggedIn() throws Exception {
+        when(mockCustomerService.getCustomer("authtok"))
+                .thenThrow(new AuthorizationFailedException("ATHR-001", "Customer is not Logged in."));
+
+        mockMvc
+                .perform(put("/customer/password")
+                        .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                        .header("authorization", "Bearer authtok")
+                        .content("{\"old_password\":\"oldPwd\", \"new_password\":\"newPwd\"}"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("code").value("ATHR-001"));
+//        verify(mockCustomerService, times(1)).getCustomer("authtok");
+//        verify(mockCustomerService, times(0)).updateCustomer(any(), any());
+    }
 //
 //    //This test case passes when you have handled the exception of trying to update your password but you are already
 //    // logged out.

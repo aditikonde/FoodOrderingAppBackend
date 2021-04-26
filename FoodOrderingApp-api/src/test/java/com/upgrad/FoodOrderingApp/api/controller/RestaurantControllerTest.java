@@ -8,6 +8,7 @@ import com.upgrad.FoodOrderingApp.service.businness.CustomerBusinessService;
 import com.upgrad.FoodOrderingApp.service.businness.ItemBusinessService;
 import com.upgrad.FoodOrderingApp.service.businness.RestaurantBusinessService;
 import com.upgrad.FoodOrderingApp.service.entity.AddressEntity;
+import com.upgrad.FoodOrderingApp.service.entity.CategoryEntity;
 import com.upgrad.FoodOrderingApp.service.entity.RestaurantEntity;
 import com.upgrad.FoodOrderingApp.service.entity.StateEntity;
 import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
@@ -106,25 +107,25 @@ public class RestaurantControllerTest {
 //    // no restaurants with that restaurant id.
 //    @Test
 //    public void shouldNotGetRestaurantDetailsIfRestaurantNotFoundForGivenRestaurantId() throws Exception {
-//        when(mockRestaurantService.restaurantByUUID("someRestaurantId"))
+//        when(mockRestaurantService.getRestaurantByUUID("someRestaurantId"))
 //                .thenThrow(new RestaurantNotFoundException("RNF-001", "No restaurant by this id"));
 //
 //        mockMvc
 //                .perform(get("/restaurant/someRestaurantId").contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
 //                .andExpect(status().isNotFound())
 //                .andExpect(jsonPath("code").value("RNF-001"));
-//        verify(mockRestaurantService, times(1)).restaurantByUUID("someRestaurantId");
-//        verify(mockCategoryService, times(0)).getCategoriesByRestaurant(anyString());
+//        verify(mockRestaurantService, times(1)).getRestaurantByUUID("someRestaurantId");
+//        verify(mockCategoryService, times(0)).getRestaurantCategoriesByRestaurantID(anyString());
 //        verify(mockItemService, times(0)).getItemsByCategoryAndRestaurant(anyString(), anyString());
 //    }
 //
 //    // ------------------------------------------ GET /restaurant/name/{restaurant_name} ------------------------------------------
 //
-//    //This test case passes when you are able to fetch restaurants by the name you provided.
+    //This test case passes when you are able to fetch restaurants by the name you provided.
 //    @Test
 //    public void shouldGetRestaurantDetailsByGivenName() throws Exception {
 //        final RestaurantEntity restaurantEntity = getRestaurantEntity();
-//        when(mockRestaurantService.restaurantsByName("someRestaurantName"))
+//        when(mockRestaurantService.getAllRestaurants("someRestaurantName"))
 //                .thenReturn(Collections.singletonList(restaurantEntity));
 //
 //        final CategoryEntity categoryEntity = getCategoryEntity();
@@ -143,7 +144,7 @@ public class RestaurantControllerTest {
 //        assertEquals(restaurantList.getId().toString(), restaurantEntity.getUuid());
 //        assertEquals(restaurantList.getAddress().getId().toString(), restaurantEntity.getAddress().getUuid());
 //        assertEquals(restaurantList.getAddress().getState().getId().toString(), restaurantEntity.getAddress().getState().getUuid());
-
+//
 //        verify(mockRestaurantService, times(1)).restaurantsByName("someRestaurantName");
 //        verify(mockCategoryService, times(1)).getRestaurantCategoriesByRestaurantID(restaurantEntity.getId());
 //    }
@@ -169,7 +170,7 @@ public class RestaurantControllerTest {
 //    @Test
 //    public void shouldGetRestaurantDetailsByGivenCategoryId() throws Exception {
 //        final RestaurantEntity restaurantEntity = getRestaurantEntity();
-//        when(mockRestaurantService.restaurantByCategory("someCategoryId"))
+//        when(mockRestaurantService.getRestaurantCategoryByCategoryId("someCategoryId"))
 //                .thenReturn(Collections.singletonList(restaurantEntity));
 //
 //        final CategoryEntity categoryEntity = getCategoryEntity();

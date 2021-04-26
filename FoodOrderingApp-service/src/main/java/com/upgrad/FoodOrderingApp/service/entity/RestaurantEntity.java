@@ -17,7 +17,11 @@ import java.math.BigDecimal;
 
         @NamedQuery(name = "getRestaurantAddress",query = "select r from RestaurantEntity r where lower(r.uuid) = :restaurantUUID"),
         @NamedQuery(name = "findRestaurantById",query = "select r from RestaurantEntity r where" +
-                " lower(r.id) = :restaurantID order by r.restaurant_name asc")
+                " lower(r.id) = :restaurantID order by r.restaurant_name asc"),
+        @NamedQuery(name = "findRestaurantByName",query = "select r from RestaurantEntity r where" +
+                " lower(r.restaurant_name) = :name ")
+
+
 
 })
 public class RestaurantEntity {

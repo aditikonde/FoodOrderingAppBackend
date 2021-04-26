@@ -1,53 +1,55 @@
-//package com.upgrad.FoodOrderingApp.api.controller;
+package com.upgrad.FoodOrderingApp.api.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.upgrad.FoodOrderingApp.api.model.AddressList;
+import com.upgrad.FoodOrderingApp.api.model.AddressListResponse;
+import com.upgrad.FoodOrderingApp.api.model.StatesList;
+import com.upgrad.FoodOrderingApp.api.model.StatesListResponse;
+import com.upgrad.FoodOrderingApp.service.businness.AddressBusinessService;
+import com.upgrad.FoodOrderingApp.service.businness.CustomerBusinessService;
+import com.upgrad.FoodOrderingApp.service.entity.AddressEntity;
+import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
+import com.upgrad.FoodOrderingApp.service.entity.StateEntity;
+import com.upgrad.FoodOrderingApp.service.exception.AddressNotFoundException;
+import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
+import com.upgrad.FoodOrderingApp.service.exception.SaveAddressException;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
 //
-//import com.fasterxml.jackson.databind.ObjectMapper;
-//import com.upgrad.FoodOrderingApp.api.model.AddressList;
-//import com.upgrad.FoodOrderingApp.api.model.AddressListResponse;
-//import com.upgrad.FoodOrderingApp.api.model.StatesList;
-//import com.upgrad.FoodOrderingApp.api.model.StatesListResponse;
-//import com.upgrad.FoodOrderingApp.service.businness.AddressService;
-//import com.upgrad.FoodOrderingApp.service.businness.CustomerService;
-//import com.upgrad.FoodOrderingApp.service.entity.AddressEntity;
-//import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
-//import com.upgrad.FoodOrderingApp.service.entity.StateEntity;
-//import com.upgrad.FoodOrderingApp.service.exception.AddressNotFoundException;
-//import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
-//import com.upgrad.FoodOrderingApp.service.exception.SaveAddressException;
-//import org.junit.Test;
-//import org.junit.runner.RunWith;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-//import org.springframework.boot.test.context.SpringBootTest;
-//import org.springframework.boot.test.mock.mockito.MockBean;
-//import org.springframework.http.MediaType;
-//import org.springframework.test.context.junit4.SpringRunner;
-//import org.springframework.test.web.servlet.MockMvc;
-//
-//import java.util.Collections;
-//import java.util.UUID;
-//
-//import static org.junit.Assert.assertNull;
-//import static org.mockito.ArgumentMatchers.any;
-//import static org.mockito.ArgumentMatchers.anyString;
-//import static org.mockito.Mockito.*;
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-//
-//// This class contains all the test cases regarding the address controller
-//@RunWith(SpringRunner.class)
-//@SpringBootTest
-//@AutoConfigureMockMvc
-//public class AddressControllerTest {
-//
-//    @Autowired
-//    private MockMvc mockMvc;
-//
-//    @MockBean
-//    private AddressService mockAddressService;
-//
-//    @MockBean
-//    private CustomerService mockCustomerService;
+import java.util.Collections;
+import java.util.UUID;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+// This class contains all the test cases regarding the address controller
+@RunWith(SpringRunner.class)
+@SpringBootTest
+@AutoConfigureMockMvc
+public class AddressControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private AddressBusinessService mockAddressService;
+
+    @MockBean
+    private CustomerBusinessService mockCustomerService;
+
 //
 //    // ------------------------------------------ POST /address ------------------------------------------
 //
@@ -269,7 +271,7 @@
 //    public void shouldNotDeleteAddressIfNoAddressPresentAgainstGivenAddressId() throws Exception {
 //        final CustomerEntity customerEntity = new CustomerEntity();
 //        when(mockCustomerService.getCustomer("database_accesstoken2")).thenReturn(customerEntity);
-//        when(mockAddressService.getAddressByUUID("82849cd5-106e-4b34-b9bf-94954c6ff527", customerEntity))
+//        when(mockAddressService.getAddressByUUID("82849cd5-106e-4b34-b9bf-94954c6ff527"))
 //                .thenThrow(new AddressNotFoundException("ANF-003", "No address by this id"));
 //
 //        mockMvc
@@ -280,8 +282,8 @@
 //                .andExpect(status().isNotFound())
 //                .andExpect(jsonPath("code").value("ANF-003"));
 //        verify(mockCustomerService, times(1)).getCustomer("database_accesstoken2");
-//        verify(mockAddressService, times(1)).getAddressByUUID("82849cd5-106e-4b34-b9bf-94954c6ff527", customerEntity);
-//        verify(mockAddressService, times(0)).deleteAddress(any());
+//        verify(mockAddressService, times(1)).getAddressByUUID("82849cd5-106e-4b34-b9bf-94954c6ff527");
+//        verify(mockAddressService, times(0)).deleteAddress(any(), any());
 //    }
 //
 //    //This test case passes when you have handled the exception of trying to delete an address of a different customer
@@ -290,7 +292,7 @@
 //    public void shouldNotDeleteAddressForWrongCustomer() throws Exception {
 //        final CustomerEntity customerEntity = new CustomerEntity();
 //        when(mockCustomerService.getCustomer("database_accesstoken2")).thenReturn(customerEntity);
-//        when(mockAddressService.getAddressByUUID("82849cd5-106e-4b34-b9bf-94954c6ff527", customerEntity))
+//        when(mockAddressService.getAddressByUUID("82849cd5-106e-4b34-b9bf-94954c6ff527"))
 //                .thenThrow(new AuthorizationFailedException("ATHR-004", "You are not authorized to view/update/delete any one else's address"));
 //
 //        mockMvc
@@ -301,8 +303,8 @@
 //                .andExpect(status().isForbidden())
 //                .andExpect(jsonPath("code").value("ATHR-004"));
 //        verify(mockCustomerService, times(1)).getCustomer("database_accesstoken2");
-//        verify(mockAddressService, times(1)).getAddressByUUID("82849cd5-106e-4b34-b9bf-94954c6ff527", customerEntity);
-//        verify(mockAddressService, times(0)).deleteAddress(any());
+//        verify(mockAddressService, times(1)).getAddressByUUID("82849cd5-106e-4b34-b9bf-94954c6ff527");
+//        verify(mockAddressService, times(0)).deleteAddress(any(), any());
 //    }
 //
 //    // ------------------------------------------ GET /address/customer ------------------------------------------
@@ -319,10 +321,12 @@
 //        addressEntity.setPincode("100000");
 //        addressEntity.setCity("city");
 //        addressEntity.setLocality("locality");
-//        addressEntity.setFlatBuilNo("flatBuildNo");
+//        addressEntity.setFlat_buil_number("flatBuildNo");
 //        final String stateUuid = UUID.randomUUID().toString();
-//        addressEntity.setState(new StateEntity(stateUuid, "state"));
-//        when(mockAddressService.getAllAddress(customerEntity)).thenReturn(Collections.singletonList(addressEntity));
+//        StateEntity state = new StateEntity();
+//        state.setUuid("state");
+//        addressEntity.setState(state);
+//        when(mockAddressService.getAllSavedAddressByCustomer("Bearer database_accesstoken2")).thenReturn(Collections.singletonList(addressEntity));
 //
 //        final String response = mockMvc
 //                .perform(get("/address/customer")
@@ -344,58 +348,57 @@
 //        assertEquals(addressList.getId().toString(), addressUuid);
 //
 //        verify(mockCustomerService, times(1)).getCustomer("database_accesstoken2");
-//        verify(mockAddressService, times(1)).getAllAddress(customerEntity);
+//        verify(mockAddressService, times(1)).getAllSavedAddressByCustomer("Bearer database_accesstoken2");
 //    }
 //
 //    //This test case passes when you have handled the exception of trying to fetch addresses for any customer with non existing access-token.
-//    @Test
-//    public void shouldNotGetAllAddressesWithNonExistingAccessToken() throws Exception {
-//        when(mockCustomerService.getCustomer("non_existing_access_token"))
-//                .thenThrow(new AuthorizationFailedException("ATHR-001", "Customer is not Logged in."));
-//
-//        mockMvc
-//                .perform(get("/address/customer")
-//                        .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
-//                        .header("authorization", "Bearer non_existing_access_token"))
-//                .andExpect(status().isForbidden())
-//                .andExpect(jsonPath("code").value("ATHR-001"));
-//        verify(mockCustomerService, times(1)).getCustomer("non_existing_access_token");
-//        verify(mockAddressService, times(0)).getAllAddress(any());
-//    }
+    @Test
+    public void shouldNotGetAllAddressesWithNonExistingAccessToken() throws Exception {
+        when(mockCustomerService.getCustomer("non_existing_access_token"))
+                .thenThrow(new AuthorizationFailedException("ATHR-001", "Customer is not Logged in."));
+
+        mockMvc
+                .perform(get("/address/customer")
+                        .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                        .header("authorization", "Bearer non_existing_access_token"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("code").value("ATHR-001"));
+        verify(mockAddressService, times(0)).getAllSavedAddressByCustomer(any());
+    }
 //
 //    //This test case passes when you have handled the exception of trying to fetch addresses for any customer with while
 //    // the customer is currently signed out.
-//    @Test
-//    public void shouldNotGetAllAddressesWithSignedOutUser() throws Exception {
-//        when(mockCustomerService.getCustomer("database_accesstoken"))
-//                .thenThrow(new AuthorizationFailedException("ATHR-002", "Customer is logged out. Log in again to access this endpoint."));
-//
-//        mockMvc
-//                .perform(get("/address/customer")
-//                        .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
-//                        .header("authorization", "Bearer database_accesstoken"))
-//                .andExpect(status().isForbidden())
-//                .andExpect(jsonPath("code").value("ATHR-002"));
-//        verify(mockCustomerService, times(1)).getCustomer("database_accesstoken");
-//        verify(mockAddressService, times(0)).getAllAddress(any());
-//    }
+    @Test
+    public void shouldNotGetAllAddressesWithSignedOutUser() throws Exception {
+        when(mockCustomerService.getCustomer("database_accesstoken"))
+                .thenThrow(new AuthorizationFailedException("ATHR-002", "Customer is logged out. Log in again to access this endpoint."));
+
+        mockMvc
+                .perform(get("/address/customer")
+                        .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                        .header("authorization", "Bearer database_accesstoken"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("code").value("ATHR-002"));
+        verify(mockCustomerService, times(1)).getCustomer("database_accesstoken");
+        verify(mockAddressService, times(0)).getAllSavedAddressByCustomer(any());
+    }
 //
 //    //This test case passes when you have handled the exception of trying to fetch addresses for any customer while
 //    // the session of that customer is already expired.
-//    @Test
-//    public void shouldNotGetAllAddressesWithExpiredSessionUser() throws Exception {
-//        when(mockCustomerService.getCustomer("database_accesstoken1"))
-//                .thenThrow(new AuthorizationFailedException("ATHR-003", "Your session is expired. Log in again to access this endpoint."));
-//
-//        mockMvc
-//                .perform(delete("/address/customer")
-//                        .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
-//                        .header("authorization", "Bearer database_accesstoken1"))
-//                .andExpect(status().isForbidden())
-//                .andExpect(jsonPath("code").value("ATHR-003"));
-//        verify(mockCustomerService, times(1)).getCustomer("database_accesstoken1");
-//        verify(mockAddressService, times(0)).getAllAddress(any());
-//    }
+    @Test
+    public void shouldNotGetAllAddressesWithExpiredSessionUser() throws Exception {
+        when(mockCustomerService.getCustomer("database_accesstoken1"))
+                .thenThrow(new AuthorizationFailedException("ATHR-003", "Your session is expired. Log in again to access this endpoint."));
+
+        mockMvc
+                .perform(delete("/address/customer")
+                        .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
+                        .header("authorization", "Bearer database_accesstoken1"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("code").value("ATHR-003"));
+        verify(mockCustomerService, times(1)).getCustomer("database_accesstoken1");
+        verify(mockAddressService, times(0)).getAllSavedAddressByCustomer(any());
+    }
 //
 //    // ------------------------------------------ GET /states ------------------------------------------
 //
@@ -403,7 +406,8 @@
 //    @Test
 //    public void shouldGetAllStates() throws Exception {
 //        final String stateUuid = UUID.randomUUID().toString();
-//        final StateEntity stateEntity = new StateEntity(stateUuid, "stateName");
+//        final StateEntity stateEntity = new StateEntity();
+//        stateEntity.setState_name("stateName");
 //        when(mockAddressService.getAllStates()).thenReturn(Collections.singletonList(stateEntity));
 //
 //        final String response = mockMvc
@@ -420,16 +424,16 @@
 //    }
 //
 //    //This test case passes when you are not able to retrive any states if there are no states saved in the database.
-//    @Test
-//    public void shouldNotGetAllStatesIfNonePresentInDb() throws Exception {
-//        when(mockAddressService.getAllStates()).thenReturn(Collections.emptyList());
-//
-//        final String response = mockMvc
-//                .perform(get("/states").contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-//                .andExpect(status().isOk())
-//                .andReturn().getResponse().getContentAsString();
-//
-//        final StatesListResponse statesLists = new ObjectMapper().readValue(response, StatesListResponse.class);
-//        assertNull(statesLists.getStates());
-//    }
-//}
+    @Test
+    public void shouldNotGetAllStatesIfNonePresentInDb() throws Exception {
+        when(mockAddressService.getAllStates()).thenReturn(Collections.emptyList());
+
+        final String response = mockMvc
+                .perform(get("/states").contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        final StatesListResponse statesLists = new ObjectMapper().readValue(response, StatesListResponse.class);
+        assertEquals(statesLists.getStates(), Collections.emptyList());
+    }
+}

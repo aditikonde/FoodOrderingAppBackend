@@ -101,6 +101,9 @@ public class AddressController {
 
         final AddressEntity addressEntity = addressBusinessService.deleteAddress(addressId,
                 customerAuthEntity);
+        if (addressEntity == null) {
+            throw new AddressNotFoundException("ANF-003","No address by this id");
+        }
         DeleteAddressResponse deleteAddressResponse =
                 new DeleteAddressResponse().id(UUID.fromString(addressId)).status("ADDRESS " +
                         "DELETED SUCCESSFULLY");
@@ -172,8 +175,8 @@ public class AddressController {
 
         for (int i = 0; i < listOfStates.size(); i++) {
             StatesList state = new StatesList();
-            state.id(UUID.fromString(listOfStates.get(i).getUuid()))
-                    .stateName(listOfStates.get(i).getState_name());
+            state.setId(UUID.fromString(listOfStates.get(i).getUuid()));
+            state.setStateName(listOfStates.get(i).getState_name());
 
             list.add(state);
         }

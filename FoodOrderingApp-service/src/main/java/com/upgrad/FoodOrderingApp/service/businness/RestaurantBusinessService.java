@@ -75,11 +75,11 @@ public class RestaurantBusinessService {
 
     public RestaurantEntity getRestaurantByUUID(String restaurantUUID) throws RestaurantNotFoundException {
         if(restaurantUUID==null) {
-            //throw new RestaurantNotFoundException("RNF-002" ,"Restaurant id field should not be empty");
+            throw new RestaurantNotFoundException("RNF-002" ,"Restaurant id field should not be empty");
         }
         RestaurantEntity restaurantEntity = restaurantDao.getRestaurantByUUId(restaurantUUID);
         if (restaurantEntity==null) {
-            //throw new RestaurantNotFoundException("RNF-001" ,"No restaurant by this id");
+            throw new RestaurantNotFoundException("RNF-001" ,"No restaurant by this id");
         }
         return restaurantDao.getRestaurantByUUId(restaurantUUID);
     }
@@ -97,6 +97,10 @@ public class RestaurantBusinessService {
     public RestaurantEntity getRestaurantById(Integer restaurantID) {
 
         return restaurantDao.getRestaurantById(restaurantID);
+    }
+
+    public RestaurantEntity getRestaurantByName(String name) {
+        return restaurantDao.getRestaurantByName(name);
     }
 
 

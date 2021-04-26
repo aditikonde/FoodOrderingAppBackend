@@ -66,4 +66,11 @@ public class RestaurantDao {
 
     }
 
+    public RestaurantEntity getRestaurantByName(String name) {
+        try {
+            return entityManager.createNamedQuery("findRestaurantByName", RestaurantEntity.class).setParameter("name",name.toLowerCase()).getSingleResult();
+        } catch(NoResultException nre) {
+            return null;
+        }
+    }
 }
