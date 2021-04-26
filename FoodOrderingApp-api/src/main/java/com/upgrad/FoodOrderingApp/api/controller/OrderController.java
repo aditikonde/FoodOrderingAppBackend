@@ -89,6 +89,13 @@ public class OrderController {
 
         CustomerAuthEntity customerAuthTokenEntity = customerBusinessService.getCustomerByAuthToken(authorization);
 
+        if(customerAuthTokenEntity == null)
+            throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
+        if(customerAuthTokenEntity != null && customerAuthTokenEntity.getLogout_at() != null && customerAuthTokenEntity.getLogout_at().isBefore(ZonedDateTime.now()))
+            throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again to access this endpoint.");
+        if(customerAuthTokenEntity != null && customerAuthTokenEntity.getExpires_at().isBefore(ZonedDateTime.now()))
+            throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again to access this endpoint.");
+
         CustomerEntity customerEntity = customerAuthTokenEntity.getCustomer();
 
         final List<OrdersEntity> ordersEntityList = orderBusinessService.getCustomerOrders(customerEntity, authorization);
