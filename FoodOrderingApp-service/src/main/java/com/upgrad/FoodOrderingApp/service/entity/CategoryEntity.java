@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.List;
 
 @Entity
 @Table(name = "CATEGORY")
@@ -82,4 +83,6 @@ public class CategoryEntity  {
     }
 
 
+    public void setItems(List<ItemEntity> singletonList) {
+    }
 }

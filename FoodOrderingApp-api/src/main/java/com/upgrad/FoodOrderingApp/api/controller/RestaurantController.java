@@ -6,6 +6,7 @@ import com.upgrad.FoodOrderingApp.service.businness.CategoryBusinessService;
 import com.upgrad.FoodOrderingApp.service.businness.RestaurantBusinessService;
 import com.upgrad.FoodOrderingApp.service.entity.*;
 import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
+import com.upgrad.FoodOrderingApp.service.exception.CategoryNotFoundException;
 import com.upgrad.FoodOrderingApp.service.exception.InvalidRatingException;
 import com.upgrad.FoodOrderingApp.service.exception.RestaurantNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,7 +88,7 @@ public class RestaurantController {
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "/restaurant/category/{category_id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<RestaurantListResponse> getRestaurantsByCategoryId(@PathVariable("category_id") final String category_Uuid) {
+    public ResponseEntity<RestaurantListResponse> getRestaurantsByCategoryId(@PathVariable("category_id") final String category_Uuid) throws CategoryNotFoundException {
 
         CategoryEntity categoryEntity = categoryBusinessService.getCategory(category_Uuid);
         List<RestaurantCategoryEntity> restaurantCategoryEntityList = restaurantBusinessService.getRestaurantCategoryByCategoryId(categoryEntity);
