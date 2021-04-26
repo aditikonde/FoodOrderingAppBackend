@@ -1,8 +1,13 @@
 INSERT INTO CUSTOMER(uuid,firstname,lastname,email,contact_number,password,salt) VALUES('7d174a25-ba31-45a8-85b4-b06ffc9d5f8f','Upgrad','SDE','sde@upgrad.com','1111111111','95070049B59AFCD5A10135A810B10BBA9FC010028AA64C6574DDE85F6DC6008D','asdfrtgyhdfrrfbfg5ef45r34f4t');
+INSERT INTO CUSTOMER(id,uuid,firstname,lastname,email,contact_number,password,salt) VALUES(780,'8d174a25-ba31-45a8-85b4-b06ffc9d5f8f','Customer1','SDE','customer1@upgrad.com','2222222222','55070049B59AFCD5A10135A810B10BBA9FC010028AA64C6574DDE85F6DC6008D','ghjkrtgyhdfrrfbfg5ef45r34f4t');
+INSERT INTO CUSTOMER(id,uuid,firstname,lastname,email,contact_number,password,salt) VALUES(781,'9d174a25-ba31-45a8-85b4-b06ffc9d5f8f','Customer2','SDE','customer2@upgrad.com','3333333333','45070049B59AFCD5A10135A810B10BBA9FC010028AA64C6574DDE85F6DC6008D','kjhgrtgyhdfrrfbfg5ef45r34f4t');
 
 INSERT INTO CUSTOMER_AUTH(id, uuid, customer_id, access_token, login_at, logout_at, expires_at)
 VALUES(100, 'caff377f-0101-4dda-8e65-5d326556667f', 780, 'access-token', '2021-09-17 21:07:02.07',
 null, '2022-09-17 21:07:02.07');
+INSERT INTO CUSTOMER_AUTH(id, uuid, customer_id, access_token, login_at, logout_at, expires_at)
+VALUES(101, 'daff377f-0101-4dda-8e65-5d326556667f', 781, 'auth', '2020-09-17 21:07:02.07',
+null, '2020-09-17 21:07:02.07');
 
 
 INSERT INTO STATE(uuid,state_name) VALUES('aa174a25-ba31-45a8-85b4-b06ffc9d5f8f','Andaman and Nicobar Islands');

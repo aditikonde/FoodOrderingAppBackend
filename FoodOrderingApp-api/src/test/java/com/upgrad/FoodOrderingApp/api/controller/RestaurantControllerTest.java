@@ -1,61 +1,66 @@
-//package com.upgrad.FoodOrderingApp.api.controller;
-//
-//import com.fasterxml.jackson.databind.ObjectMapper;
-//import com.upgrad.FoodOrderingApp.api.model.RestaurantList;
-//import com.upgrad.FoodOrderingApp.api.model.RestaurantListResponse;
-//import com.upgrad.FoodOrderingApp.service.businness.CategoryService;
-//import com.upgrad.FoodOrderingApp.service.businness.CustomerService;
-//import com.upgrad.FoodOrderingApp.service.businness.ItemService;
-//import com.upgrad.FoodOrderingApp.service.businness.RestaurantService;
-//import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
-//import com.upgrad.FoodOrderingApp.service.exception.CategoryNotFoundException;
-//import com.upgrad.FoodOrderingApp.service.exception.InvalidRatingException;
-//import com.upgrad.FoodOrderingApp.service.exception.RestaurantNotFoundException;
-//import org.junit.Test;
-//import org.junit.runner.RunWith;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-//import org.springframework.boot.test.context.SpringBootTest;
-//import org.springframework.boot.test.mock.mockito.MockBean;
-//import org.springframework.http.MediaType;
-//import org.springframework.test.context.junit4.SpringRunner;
-//import org.springframework.test.web.servlet.MockMvc;
-//
-//import java.util.Collections;
-//import java.util.UUID;
-//
+package com.upgrad.FoodOrderingApp.api.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.upgrad.FoodOrderingApp.api.model.RestaurantList;
+import com.upgrad.FoodOrderingApp.api.model.RestaurantListResponse;
+import com.upgrad.FoodOrderingApp.service.businness.CategoryBusinessService;
+import com.upgrad.FoodOrderingApp.service.businness.CustomerBusinessService;
+import com.upgrad.FoodOrderingApp.service.businness.ItemBusinessService;
+import com.upgrad.FoodOrderingApp.service.businness.RestaurantBusinessService;
+import com.upgrad.FoodOrderingApp.service.entity.AddressEntity;
+import com.upgrad.FoodOrderingApp.service.entity.RestaurantEntity;
+import com.upgrad.FoodOrderingApp.service.entity.StateEntity;
+import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
+import com.upgrad.FoodOrderingApp.service.exception.CategoryNotFoundException;
+import com.upgrad.FoodOrderingApp.service.exception.InvalidRatingException;
+import com.upgrad.FoodOrderingApp.service.exception.RestaurantNotFoundException;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.UUID;
+
 //import static com.upgrad.FoodOrderingApp.service.common.ItemType.NON_VEG;
-//import static org.mockito.ArgumentMatchers.anyString;
-//import static org.mockito.Mockito.*;
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-//
-//// This class contains all the test cases regarding the restaurant controller
-//@RunWith(SpringRunner.class)
-//@SpringBootTest
-//@AutoConfigureMockMvc
-//public class RestaurantControllerTest {
-//
-//    @Autowired
-//    private MockMvc mockMvc;
-//
-//    @MockBean
-//    private RestaurantService mockRestaurantService;
-//
-//    @MockBean
-//    private ItemService mockItemService;
-//
-//    @MockBean
-//    private CategoryService mockCategoryService;
-//
-//    @MockBean
-//    private CustomerService mockCustomerService;
-//
-//    // ------------------------------------------ GET /restaurant/{restaurant_id} ------------------------------------------
-//
-//    //This test case passes when you get restaurant details based on restaurant id.
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+// This class contains all the test cases regarding the restaurant controller
+@RunWith(SpringRunner.class)
+@SpringBootTest
+@AutoConfigureMockMvc
+public class RestaurantControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private RestaurantBusinessService mockRestaurantService;
+
+    @MockBean
+    private ItemBusinessService mockItemService;
+
+    @MockBean
+    private CategoryBusinessService mockCategoryService;
+
+    @MockBean
+    private CustomerBusinessService mockCustomerService;
+
+    // ------------------------------------------ GET /restaurant/{restaurant_id} ------------------------------------------
+
+    //This test case passes when you get restaurant details based on restaurant id.
 //    @Test
 //    public void shouldGetRestaurantDetailsForCorrectRestaurantId() throws Exception {
 //        final RestaurantEntity restaurantEntity = getRestaurantEntity();
@@ -85,17 +90,17 @@
 //
 //    //This test case passes when you have handled the exception of trying to fetch any restaurant but your restaurant id
 //    // field is empty.
-//    @Test
-//    public void shouldNotGetRestaurantidIfRestaurantIdIsEmpty() throws Exception {
-//        when(mockRestaurantService.restaurantByUUID(anyString()))
-//                .thenThrow(new RestaurantNotFoundException("RNF-002", "Restaurant id field should not be empty"));
-//
-//        mockMvc
-//                .perform(get("/restaurant/emptyString").contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-//                .andExpect(status().isNotFound())
-//                .andExpect(jsonPath("code").value("RNF-002"));
-//        verify(mockRestaurantService, times(1)).restaurantByUUID(anyString());
-//    }
+    @Test
+    public void shouldNotGetRestaurantidIfRestaurantIdIsEmpty() throws Exception {
+        when(mockRestaurantService.getRestaurantByUUID(anyString()))
+                .thenThrow(new RestaurantNotFoundException("RNF-002", "Restaurant id field should not be empty"));
+
+        mockMvc
+                .perform(get("/api/restaurant/emptyString").contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("code").value("RNF-002"));
+        verify(mockRestaurantService, times(1)).getRestaurantByUUID(anyString());
+    }
 //
 //    //This test case passes when you have handled the exception of trying to fetch restaurant details while there are
 //    // no restaurants with that restaurant id.
@@ -138,9 +143,9 @@
 //        assertEquals(restaurantList.getId().toString(), restaurantEntity.getUuid());
 //        assertEquals(restaurantList.getAddress().getId().toString(), restaurantEntity.getAddress().getUuid());
 //        assertEquals(restaurantList.getAddress().getState().getId().toString(), restaurantEntity.getAddress().getState().getUuid());
-//
+
 //        verify(mockRestaurantService, times(1)).restaurantsByName("someRestaurantName");
-//        verify(mockCategoryService, times(1)).getCategoriesByRestaurant(restaurantEntity.getUuid());
+//        verify(mockCategoryService, times(1)).getRestaurantCategoriesByRestaurantID(restaurantEntity.getId());
 //    }
 //
 //    //This test case passes when you have handled the exception of trying to fetch any restaurants but your restaurant name
@@ -447,21 +452,29 @@
 //        return categoryEntity;
 //    }
 //
-//    private RestaurantEntity getRestaurantEntity() {
-//        final String stateId = UUID.randomUUID().toString();
-//        final StateEntity stateEntity = new StateEntity(stateId, "someState");
-//        final String addressId = UUID.randomUUID().toString();
-//        final AddressEntity addressEntity = new AddressEntity(addressId, "a/b/c", "someLocality", "someCity", "100000", stateEntity);
-//
-//        final RestaurantEntity restaurantEntity = new RestaurantEntity();
-//        final String restaurantId = UUID.randomUUID().toString();
-//        restaurantEntity.setUuid(restaurantId);
-//        restaurantEntity.setAddress(addressEntity);
-//        restaurantEntity.setAvgPrice(123);
-//        restaurantEntity.setCustomerRating(3.4);
-//        restaurantEntity.setNumberCustomersRated(200);
-//        restaurantEntity.setPhotoUrl("someurl");
-//        restaurantEntity.setRestaurantName("Famous Restaurant");
-//        return restaurantEntity;
-//    }
-//}
+    private RestaurantEntity getRestaurantEntity() {
+        final String stateId = UUID.randomUUID().toString();
+        final StateEntity stateEntity = new StateEntity();
+        stateEntity.setUuid(stateId);
+        stateEntity.setState_name("someState");
+        final String addressId = UUID.randomUUID().toString();
+        final AddressEntity addressEntity = new AddressEntity();
+        addressEntity.setUuid(addressId);
+        addressEntity.setFlat_buil_number("a/b/c");
+        addressEntity.setLocality("someLocality");
+        addressEntity.setCity("someCity");
+        addressEntity.setPincode( "100000");
+        addressEntity.setState(stateEntity);
+
+        final RestaurantEntity restaurantEntity = new RestaurantEntity();
+        final String restaurantId = UUID.randomUUID().toString();
+        restaurantEntity.setUuid(restaurantId);
+        restaurantEntity.setAddress(addressEntity);
+        restaurantEntity.setAverage_price_for_two(123);
+        restaurantEntity.setCustomer_rating(BigDecimal.valueOf(3.4));
+        restaurantEntity.setNumber_of_customers_rated(200);
+        restaurantEntity.setPhoto_url("someurl");
+        restaurantEntity.setRestaurant_name("Famous Restaurant");
+        return restaurantEntity;
+    }
+}
