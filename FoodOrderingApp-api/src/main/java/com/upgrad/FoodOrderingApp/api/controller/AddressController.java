@@ -119,6 +119,12 @@ public class AddressController {
 
         CustomerAuthEntity customerAuthEntity =
                 customerBusinessService.getCustomerByAuthToken(authorization);
+        if(customerAuthEntity == null)
+            throw new AuthorizationFailedException("ATHR-001","Customer is not Logged in.");
+        if(customerAuthEntity != null && customerAuthEntity.getLogout_at() != null && customerAuthEntity.getLogout_at().isBefore(ZonedDateTime.now()))
+            throw new AuthorizationFailedException("ATHR-002","Customer is logged out. Log in again to access this endpoint.");
+        if(customerAuthEntity != null && customerAuthEntity.getExpires_at().isBefore(ZonedDateTime.now()))
+            throw new AuthorizationFailedException("ATHR-003","Your session is expired. Log in again to access this endpoint.");
 
         //CustomerEntity customerEntity = customerBusinessService.getCustomerById(customerAuthEntity.getId());
         CustomerEntity customerEntity = customerAuthEntity.getCustomer();
@@ -137,10 +143,11 @@ public class AddressController {
 
 
             AddressListState state = new AddressListState();
-            StateEntity stateEntity = addressBusinessService.getStateByUuid(customerAddress.getAddress().getUuid());
-            state.id(UUID.fromString(stateEntity.getUuid()))
-                    .stateName(stateEntity.getState_name());
-
+            StateEntity stateEntity = addressBusinessService.getStateByUuid(customerAddress.getAddress().getState().getUuid());
+//            state.id(UUID.fromString(stateEntity.getUuid()))
+//                    .stateName(stateEntity.getState_name());
+            state.setId(UUID.fromString(stateEntity.getUuid()));
+            state.setStateName(stateEntity.getState_name());
             addressList.setState(state);
 
             allSavedAddressResponses.addAddressesItem(addressList);
